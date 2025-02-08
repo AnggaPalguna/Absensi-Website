@@ -3,6 +3,7 @@ import { Menu, X } from "lucide-react";
 import { useState } from "react";
 import Link from "next/link";
 import { Home, Calendar, User } from "lucide-react";
+import LogoutButton from "@/components/Logout";
 
 const Header = () => {
     const [isDropdownOpen, setIsDropdownOpen] = useState(false);
@@ -27,9 +28,9 @@ const Header = () => {
                     <nav>
                         <ul className="space-y-3">
                             <li onClick={closeDropdown}>
-                                <Link href="/" className="flex items-center p-2 rounded hover:bg-slate-200 text-slate-600">
+                                <Link href="/dashboard" className="flex items-center p-2 rounded hover:bg-slate-200 text-slate-600">
                                     <Home className="w-6 h-6" />
-                                    <span className="ml-2">Home</span>
+                                    <span className="ml-2">Dashboard</span>
                                 </Link>
                             </li>
                             <li onClick={closeDropdown}>
@@ -43,6 +44,9 @@ const Header = () => {
                                     <User className="w-6 h-6" />
                                     <span className="ml-2">Employee</span>
                                 </Link>
+                            </li>
+                            <li onClick={closeDropdown}>
+                                <LogoutButton />
                             </li>
                         </ul>
                     </nav>

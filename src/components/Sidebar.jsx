@@ -1,6 +1,8 @@
 import Link from "next/link";
 import { Home, Calendar, User, ChevronLeft, ChevronRight } from "lucide-react";
 import { useState } from "react";
+import { PowerSettingsNew } from "@mui/icons-material";
+import LogoutButton from "@/components/Logout";
 
 const Sidebar = ({ isCollapsed, toggleCollapse }) => {
     return (
@@ -12,9 +14,9 @@ const Sidebar = ({ isCollapsed, toggleCollapse }) => {
             <nav className="mt-2">
                 <ul className="space-y-3">
                     <li>
-                        <Link href="/" className="flex items-center p-2 rounded hover:bg-slate-200 text-slate-600">
+                        <Link href="/dashboard" className="flex items-center p-2 rounded hover:bg-slate-200 text-slate-600">
                             <Home className="w-6 h-6" />
-                            <span className={`ml-2 ${isCollapsed ? "hidden" : "block"}`}>Home</span>
+                            <span className={`ml-2 ${isCollapsed ? "hidden" : "block"}`}>Dashboard</span>
                         </Link>
                     </li>
                     <li>
@@ -29,10 +31,17 @@ const Sidebar = ({ isCollapsed, toggleCollapse }) => {
                             <span className={`ml-2 ${isCollapsed ? "hidden" : "block"}`}>Employee</span>
                         </Link>
                     </li>
+                    <li>
+                        <LogoutButton
+                            icon={PowerSettingsNew}
+                            iconClassName="w-6 h-6"
+                            className={`${isCollapsed ? "hidden" : "block"}`} />
+                    </li>
+
                 </ul>
             </nav>
 
-        </aside>
+        </aside >
     );
 };
 
