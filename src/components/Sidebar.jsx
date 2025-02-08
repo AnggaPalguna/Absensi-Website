@@ -1,39 +1,37 @@
 import Link from "next/link";
-import { X } from "lucide-react";
+import { Home, Calendar, User, ChevronLeft, ChevronRight } from "lucide-react";
+import { useState } from "react";
 
-const Sidebar = ({ isOpen }) => {
+const Sidebar = ({ isCollapsed, toggleCollapse }) => {
     return (
-        <aside
-            className={`fixed inset-y-0 left-0 w-50 bg-gray-100 p-4 transform ${isOpen ? "translate-x-0" : "-translate-x-full"
-                } transition-transform md:relative md:translate-x-0 md:w-64 md:flex`}
-        >
-            <div className="flex flex-col h-full">
-                {/* Tombol Close di Mobile */}
-                <button className="self-end md:hidden">
-                    <X size={24} />
-                </button>
+        <aside className={`hidden md:block inset-y-0 left-0 z-30 bg-gray-800/5 backdrop-blur-sm p-4 ${isCollapsed ? "w-20" : "w-64"} transition-all duration-300`}>
 
-                {/* Navigasi */}
-                <nav className="mt-6">
-                    <ul className="space-y-3">
-                        <li>
-                            <Link href="/" className="block p-2 rounded hover:bg-slate-200 text-slate-600">
-                                Home
-                            </Link>
-                        </li>
-                        <li>
-                            <Link href="/attendance" className="block p-2 rounded hover:bg-slate-200 text-slate-600">
-                                Attendance
-                            </Link>
-                        </li>
-                        <li>
-                            <Link href="/employe" className="block p-2 rounded hover:bg-slate-200 text-slate-600">
-                                Employe
-                            </Link>
-                        </li>
-                    </ul>
-                </nav>
-            </div>
+            <button className="mb-4 hidden md:flex items-center justify-center mt-auto p-2 w-full rounded bg-slate-200 hover:bg-slate-300 text-slate-600" onClick={toggleCollapse}>
+                {isCollapsed ? <ChevronRight className="w-6 h-6" /> : <ChevronLeft className="w-6 h-6" />}
+            </button>
+            <nav className="mt-2">
+                <ul className="space-y-3">
+                    <li>
+                        <Link href="/" className="flex items-center p-2 rounded hover:bg-slate-200 text-slate-600">
+                            <Home className="w-6 h-6" />
+                            <span className={`ml-2 ${isCollapsed ? "hidden" : "block"}`}>Home</span>
+                        </Link>
+                    </li>
+                    <li>
+                        <Link href="/attendance" className="flex items-center p-2 rounded hover:bg-slate-200 text-slate-600">
+                            <Calendar className="w-6 h-6" />
+                            <span className={`ml-2 ${isCollapsed ? "hidden" : "block"}`}>Attendance</span>
+                        </Link>
+                    </li>
+                    <li>
+                        <Link href="/employe" className="flex items-center p-2 rounded hover:bg-slate-200 text-slate-600">
+                            <User className="w-6 h-6" />
+                            <span className={`ml-2 ${isCollapsed ? "hidden" : "block"}`}>Employee</span>
+                        </Link>
+                    </li>
+                </ul>
+            </nav>
+
         </aside>
     );
 };
