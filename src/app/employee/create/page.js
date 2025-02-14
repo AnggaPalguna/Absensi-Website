@@ -1,9 +1,9 @@
-import EmployeeList from "@/components/EmployePage";
+import CreateEmployee from "@/components/CreateEmployee";
 
 export default function Employe() {
     return (
         <main>
-            <EmployeeList />
+            <CreateEmployee />
         </main>
     );
 }

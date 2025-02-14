@@ -1,11 +1,22 @@
 "use client";
-import { useState } from "react";
+import { useState, useEffect } from "react";
 import Header from "./Header";
 import Sidebar from "./Sidebar";
 import Footer from "./Footer";
 
 export default function LayoutWrapper({ children }) {
-    const [isCollapsed, setIsCollapsed] = useState(false);
+    const [isCollapsed, setIsCollapsed] = useState(() => {
+        // Ambil dari localStorage saat pertama kali render
+        if (typeof window !== "undefined") {
+            return localStorage.getItem("isCollapsed") === "true";
+        }
+        return false;
+    });
+
+    // Simpan status ke localStorage setiap kali berubah
+    useEffect(() => {
+        localStorage.setItem("isCollapsed", isCollapsed);
+    }, [isCollapsed]);
 
     return (
         <div className="flex flex-col min-h-screen">

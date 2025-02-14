@@ -4,9 +4,8 @@
 
 :root {
   --background: #ffffff;
-  --foreground: #ffffff;
+  --foreground: #000000; /* Ubah menjadi hitam */
 }
-
 
 body {
   color: var(--foreground);

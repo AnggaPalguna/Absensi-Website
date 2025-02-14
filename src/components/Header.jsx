@@ -40,7 +40,7 @@ const Header = () => {
                                 </Link>
                             </li>
                             <li onClick={closeDropdown}>
-                                <Link href="/employe" className="flex items-center p-2 rounded hover:bg-slate-200 text-slate-600">
+                                <Link href="/employee" className="flex items-center p-2 rounded hover:bg-slate-200 text-slate-600">
                                     <User className="w-6 h-6" />
                                     <span className="ml-2">Employee</span>
                                 </Link>
