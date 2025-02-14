@@ -6,28 +6,33 @@ import Footer from "./Footer";
 
 export default function LayoutWrapper({ children }) {
     const [isCollapsed, setIsCollapsed] = useState(() => {
-        // Ambil dari localStorage saat pertama kali render
         if (typeof window !== "undefined") {
             return localStorage.getItem("isCollapsed") === "true";
         }
         return false;
     });
 
-    // Simpan status ke localStorage setiap kali berubah
     useEffect(() => {
         localStorage.setItem("isCollapsed", isCollapsed);
     }, [isCollapsed]);
 
     return (
-        <div className="flex flex-col min-h-screen">
+        <div className="flex flex-col h-screen">
+            {/* Header tetap di atas */}
             <Header />
+
+            {/* Wrapper utama: Sidebar + Konten */}
             <div className="flex flex-1 overflow-hidden">
+                {/* Sidebar tetap tidak bisa di-scroll */}
                 <Sidebar isCollapsed={isCollapsed} toggleCollapse={() => setIsCollapsed(!isCollapsed)} />
-                <main className="flex-1 p-6 overflow-y-auto">
-                    {children}
-                </main>
+
+                {/* Konten yang bisa di-scroll */}
+                <div className="flex flex-col flex-1 overflow-y-auto">
+                    <main className="flex-1 p-6">{children}</main>
+                    {/* Footer tetap di bawah saat konten sedikit & hanya muncul saat scroll mentok */}
+                    <Footer/>
+                </div>
             </div>
-            <Footer />
         </div>
     );
 }
