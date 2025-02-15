@@ -4,10 +4,11 @@ import { useEffect, useState } from "react";
 import { useRouter } from "next/navigation";
 import { database } from "../../firebase-config";
 import { ref, get, update, remove, set } from "firebase/database";
+import { MenuItem, Select, TextField, Button, FormControl, InputLabel, Box } from "@mui/material";
 
 export default function EditEmployee({ uid }) {
-  const [employee, setEmployee] = useState({ name: "", status: "" });
-  const [availableUids, setAvailableUids] = useState([{ key: uid, value: uid }]); // Default UID saat ini
+  const [employee, setEmployee] = useState({ name: "", gender: "" });
+  const [availableUids, setAvailableUids] = useState([{ key: uid, value: uid }]);
   const [newUid, setNewUid] = useState(uid);
   const router = useRouter();
 
@@ -23,16 +24,12 @@ export default function EditEmployee({ uid }) {
       fetchEmployee();
     }
 
-    // Ambil daftar UID dari unregistereduid/
     const fetchUnregisteredUids = async () => {
       const unregRef = ref(database, "unregisteredUids");
       const snapshot = await get(unregRef);
       if (snapshot.exists()) {
-        const unregUids = Object.entries(snapshot.val()).map(([key, value]) => ({
-          key, // Key adalah uid di unregistered
-          value, // Value adalah nilai UID yang sebenarnya
-        }));
-        setAvailableUids([{ key: uid, value: uid }, ...unregUids]); // Gabungkan dengan UID saat ini
+        const unregUids = Object.entries(snapshot.val()).map(([key, value]) => ({ key, value }));
+        setAvailableUids([{ key: uid, value: uid }, ...unregUids]);
       }
     };
     fetchUnregisteredUids();
@@ -62,68 +59,56 @@ export default function EditEmployee({ uid }) {
     const newRef = ref(database, `employees/${newUid}`);
 
     if (uid !== newUid) {
-      // Pindahkan data ke UID baru
       await set(newRef, updatedEmployee);
       await remove(oldRef);
     } else {
-      // Perbarui data jika UID tidak berubah
       await update(oldRef, updatedEmployee);
     }
 
-    // Hapus UID dari unregistered jika dipilih
     const selectedUnregistered = availableUids.find((u) => u.value === newUid);
     if (selectedUnregistered && selectedUnregistered.key !== uid) {
       const unregRef = ref(database, `unregisteredUids/${selectedUnregistered.key}`);
       await remove(unregRef);
     }
 
-    router.push("/employee"); // Redirect ke daftar karyawan
+    router.push("/employee");
   };
 
   return (
     <div className="p-6">
       <h2 className="text-xl font-bold mb-8">Edit Employee</h2>
       <form onSubmit={handleSubmit} className="space-y-4">
-        <select
-          name="uid"
-          value={newUid}
-          onChange={handleUidChange}
-          className="w-full p-2 border rounded text-black"
-        >
-          {availableUids.map(({ key, value }) => (
-            <option key={key} value={value}>
-              {value}
-            </option>
-          ))}
-        </select>
+        <FormControl fullWidth>
+          <InputLabel className="bg-white text-center">ID Karyawan</InputLabel>
+          <Select value={newUid} onChange={handleUidChange}>
+            {availableUids.map(({ key, value }) => (
+              <MenuItem key={key} value={value}>{value}</MenuItem>
+            ))}
+          </Select>
+        </FormControl>
 
-        <input
-          type="text"
+        <TextField
+          fullWidth
           name="name"
+          label="Nama"
           value={employee.name}
           onChange={handleChange}
-          className="w-full p-2 border rounded text-black"
-          placeholder="Name"
         />
-        <select
-          name="gender"
-          value={employee.gender || ""}
-          onChange={handleChange}
-          className="w-full p-2 border rounded text-black"
-        >
-          <option value="" disabled>Pilih Gender</option>
-          <option value="Male">Laki-laki</option>
-          <option value="Female">Perempuan</option>
-        </select>
-        <button type="submit" className="bg-blue-500 text-white p-2 rounded  mr-4">Save</button>
-        <button 
-          type="button" 
-          className="bg-red-500 text-white p-2 rounded"
-          onClick={() => router.push("/employee")}
-        >
-          Back
-        </button>
-        
+
+        <FormControl fullWidth>
+          <InputLabel className="bg-white text-center">Gender</InputLabel>
+          <Select name="gender" value={employee.gender || ""} onChange={handleChange}>
+            <MenuItem value="Male">Laki-laki</MenuItem>
+            <MenuItem value="Female">Perempuan</MenuItem>
+          </Select>
+        </FormControl>
+
+        <Box display="flex" gap={2}>
+          <Button variant="contained" color="primary" type="submit">Save</Button>
+          <Button variant="contained" color="secondary" onClick={() => router.push("/employee")}>
+            Back
+          </Button>
+        </Box>
       </form>
     </div>
   );

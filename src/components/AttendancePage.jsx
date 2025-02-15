@@ -33,7 +33,7 @@ export default function AttendanceTable() {
                             const url = await getDownloadURL(imageRef);
                             urls[`${date}-${uid}`] = url;
                         } catch (error) {
-                            console.error("Error fetching image URL", error);
+                            console.log("Error fetching image URL:", error);
                         }
                     }
                 }
@@ -88,7 +88,7 @@ export default function AttendanceTable() {
         }
     
         // Tambahkan Logo di Kiri Atas
-        const logoUrl = "https://media.discordapp.net/attachments/908689619296583730/1339803501018087444/Delibird-Pokemon-Go.png?ex=67b00cbe&is=67aebb3e&hm=27a421a5e2729b90f425d1d405e23968b7365de5034241afee6f8417e4aa6ccb&=&format=webp&quality=lossless&width=375&height=375"; // Ganti dengan URL gambar/logo
+        const logoUrl = "https://images.unsplash.com/photo-1549924231-f129b911e442?q=80&w=2070&auto=format&fit=crop&ixlib=rb-4.0.3&ixid=M3wxMjA3fDB8MHxwaG90by1wYWdlfHx8fGVufDB8fHx8fA%3D%3D"; // Ganti dengan URL gambar/logo
         doc.addImage(logoUrl, "PNG", 15, 15, 15, 15); // Posisi (x, y) dan ukuran (width, height)
     
         // Header
@@ -167,10 +167,10 @@ export default function AttendanceTable() {
 
             {/* Filter Date & Print Button */}
             <div className="flex justify-between items-center mb-4 gap-4">
-                <div>
-                    <label className="font-semibold text-gray-700">Filter by Date: </label>
+                <div className="flex flex-col md:flex-row md:gap-2 gap-1 items-center">
+                    <label className="flex font-semibold text-gray-700">Filter by Date: </label>
                     <select
-                        className="border border-gray-400 text-gray-700 px-2 py-2 rounded-md ml-2"
+                        className="flex border  border-gray-400 text-gray-700 px-1 md:px-2 py-1 md:py-2 rounded-md md:ml-2 "
                         value={selectedDate}
                         onChange={(e) => setSelectedDate(e.target.value)}
                     >
@@ -179,7 +179,7 @@ export default function AttendanceTable() {
                             <option value={selectedDate}>{selectedDate}</option>
                         )}
                         {availableDates.map((date) => (
-                            <option key={date} value={date}>
+                            <option key={date} value={date} className="text-xs md:text-base">
                                 {date}
                             </option>
                         ))}
@@ -189,7 +189,7 @@ export default function AttendanceTable() {
                 {/* Print Button */}
                 <button
                     onClick={generatePDF}
-                    className="flex items-center bg-blue-600 text-white px-3 py-2 rounded-md hover:bg-blue-700 transition"
+                    className="flex items-center bg-blue-600 text-white px-3 py-3 md:py-2 rounded-md hover:bg-blue-700 transition"
                 >
                     🖨 Print Preview
                 </button>
@@ -204,13 +204,13 @@ export default function AttendanceTable() {
 
                         <div className="mt-4 flex justify-between">
                             <button
-                                className="bg-gray-500 text-white px-4 py-2 rounded-md hover:bg-gray-700"
+                                className="bg-gray-500 text-white py-1 px-2 md:px-4 md:py-2 rounded-md hover:bg-gray-700 text-sm md:text-base"
                                 onClick={() => setPdfPreviewUrl(null)}
                             >
                                 ✕ Close
                             </button>
                             <button
-                                className="bg-green-600 text-white px-4 py-2 rounded-md hover:bg-green-700"
+                                className="bg-green-600 text-white py-1 px-2 md:px-4 md:py-2 rounded-md hover:bg-green-700 text-sm md:text-base"
                                 onClick={downloadPDF}
                             >
                                 ⬇ Download PDF

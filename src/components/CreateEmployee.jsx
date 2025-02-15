@@ -46,7 +46,7 @@ export default function CreateEmployee() {
     <div className="p-6 max-w-md">
       <h1 className="text-2xl font-bold mb-4">Create Employee</h1>
       <Button 
-        variant="outlined" 
+        variant="contained" 
         color="secondary" 
         onClick={() => router.push("/employee")} 
         className="mb-4"

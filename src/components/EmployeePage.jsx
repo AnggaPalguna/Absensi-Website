@@ -43,7 +43,7 @@ export default function EmployeeList() {
   return (
     <div className="p-6">
       <h1 className="text-2xl font-bold text-gray-700">Employee List</h1>
-      <div className="grid justify-items-end mb-4">
+      <div className="grid md:justify-items-end mt-3 md:mt-0 justify-items-start mb-4">
         <Button 
           variant="contained" 
           color="primary" 

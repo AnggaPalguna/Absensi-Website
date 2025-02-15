@@ -24,7 +24,7 @@ const Header = () => {
             <h1 className="ml-4 text-xl font-bold">My Website</h1>
 
             {isDropdownOpen && (
-                <div className="absolute top-16 left-0 w-auto bg-white shadow-md p-4 md:hidden">
+                <div className="absolute top-16 left-0 w-auto bg-white shadow-md p-4 md:hidden z-50">
                     <nav>
                         <ul className="space-y-3">
                             <li onClick={closeDropdown}>
