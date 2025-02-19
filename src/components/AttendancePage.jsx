@@ -42,35 +42,30 @@ export default function AttendanceTable() {
         });
     }, []);
 
+    // Fungsi Generate PDF
     const generatePDF = () => {
         const doc = new jsPDF();
         const selectedMonthYear = selectedDate.slice(0, 7); // Format: YYYY-MM
         const monthYearFormatted = new Date(`${selectedMonthYear}-01`).toLocaleString("id-ID", { month: "long", year: "numeric" });
     
-        // Ambil semua tanggal dalam bulan yang dipilih
         const year = parseInt(selectedMonthYear.split("-")[0]);
         const month = parseInt(selectedMonthYear.split("-")[1]) - 1;
         const daysInMonth = new Date(year, month + 1, 0).getDate();
         
         let filteredData = [];
-        let noCounter = 1; // Untuk nomor di tabel
+        let noCounter = 1;
     
         for (let day = 1; day <= daysInMonth; day++) {
             const formattedDate = `${selectedMonthYear}-${String(day).padStart(2, "0")}`;
-            const isSunday = new Date(formattedDate).getDay() === 0; // Cek apakah hari Minggu
+            const isSunday = new Date(formattedDate).getDay() === 0;
     
-            // Tambahkan tanggal sebagai pembatas
-            filteredData.push({
-                isDateRow: true,
-                date: formattedDate,
-                isSunday: isSunday
-            });
+            filteredData.push({ isDateRow: true, date: formattedDate, isSunday: isSunday });
     
             if (attendance[formattedDate]) {
                 Object.entries(attendance[formattedDate]).forEach(([uid, record]) => {
                     filteredData.push({
                         isDateRow: false,
-                        no: noCounter++, // Nomor tetap bertambah, melewati baris tanggal
+                        no: noCounter++,
                         name: record.name || "-",
                         time: record.time || "-",
                         status: record.status || "-",
@@ -87,40 +82,34 @@ export default function AttendanceTable() {
             }
         }
     
-        // Tambahkan Logo di Kiri Atas
-        const logoUrl = "https://images.unsplash.com/photo-1549924231-f129b911e442?q=80&w=2070&auto=format&fit=crop&ixlib=rb-4.0.3&ixid=M3wxMjA3fDB8MHxwaG90by1wYWdlfHx8fGVufDB8fHx8fA%3D%3D"; // Ganti dengan URL gambar/logo
-        doc.addImage(logoUrl, "PNG", 15, 15, 15, 15); // Posisi (x, y) dan ukuran (width, height)
+        const logoUrl = "https://images.unsplash.com/photo-1549924231-f129b911e442?q=80&w=2070&auto=format&fit=crop&ixlib=rb-4.0.3&ixid=M3wxMjA3fDB8MHxwaG90by1wYWdlfHx8fGVufDB8fHx8fA%3D%3D";
+        doc.addImage(logoUrl, "PNG", 15, 15, 15, 15);
     
-        // Header
         doc.setFontSize(18);
         doc.text("Laporan Absensi", 105, 20, null, null, "center");
         doc.setFontSize(12);
         doc.text(monthYearFormatted, 105, 30, null, null, "center");
-    
-        // Garis pembatas header dan tabel
+        
         doc.setLineWidth(0.5);
         doc.line(15, 35, 195, 35);
     
-        // Tabel hitam putih dengan tanggal sebagai pembatas
         autoTable(doc, {
             startY: 40,
-            headStyles: { fillColor: [0, 0, 0], textColor: [255, 255, 255] }, // Header hitam dengan teks putih
-            bodyStyles: { fillColor: [255, 255, 255], textColor: [0, 0, 0] }, // Body putih dengan teks hitam
+            headStyles: { fillColor: [0, 0, 0], textColor: [255, 255, 255] },
+            bodyStyles: { fillColor: [255, 255, 255], textColor: [0, 0, 0] },
             styles: { fontSize: 10, cellPadding: 3, halign: "center" },
             head: [["No", "Nama", "Waktu", "Status"]],
             body: filteredData.map((row) => {
                 if (row.isDateRow) {
-                    return [
-                        { 
-                            content: `Tanggal: ${row.date}`, 
-                            colSpan: 4, 
-                            styles: { 
-                                fontStyle: "bold", 
-                                halign: "center", 
-                                textColor: row.isSunday ? [255, 0, 0] : [0, 0, 0] 
-                            } 
-                        }
-                    ];
+                    return [{ 
+                        content: `Tanggal: ${row.date}`, 
+                        colSpan: 4, 
+                        styles: { 
+                            fontStyle: "bold", 
+                            halign: "center", 
+                            textColor: row.isSunday ? [255, 0, 0] : [0, 0, 0] 
+                        } 
+                    }];
                 } else {
                     return [
                         row.no,
@@ -132,19 +121,24 @@ export default function AttendanceTable() {
             }),
         });
     
-     // **Tambahkan Tanda Tangan Langsung di Bawah Tabel**
-     const finalY = doc.lastAutoTable.finalY + 20; // Posisi setelah tabel
-
-     doc.setFontSize(12);
-     doc.text("Mengetahui,", 140, finalY);
-     doc.text("Kepala", 140, finalY + 8);
-     doc.text("(___________________)", 140, finalY + 35); // Jarak untuk tanda tangan
+        let finalY = doc.lastAutoTable.finalY + 20;
+        
+        // Cek apakah tanda tangan melebihi batas kertas
+        if (finalY + 40 > doc.internal.pageSize.height) {
+            doc.addPage();
+            finalY = 20; // Reset posisi di halaman baru
+        }
+        
+        doc.setFontSize(12);
+        doc.text("Mengetahui,", 140, finalY);
+        doc.text("Kepala", 140, finalY + 8);
+        doc.text("(___________________)", 140, finalY + 35);
     
-        // Buat Blob untuk Preview
         const pdfBlob = doc.output("blob");
         const pdfUrl = URL.createObjectURL(pdfBlob);
         setPdfPreviewUrl(pdfUrl);
     };
+    
     
     
     
