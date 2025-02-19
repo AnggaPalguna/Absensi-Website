@@ -11,17 +11,16 @@ import { IconButton } from "@mui/material";
 import CalendarTodayIcon from "@mui/icons-material/CalendarToday";
 import { AdapterDateFns } from "@mui/x-date-pickers/AdapterDateFns";
 import { LocalizationProvider } from "@mui/x-date-pickers/LocalizationProvider";
+import { Padding } from "@mui/icons-material";
 
 export default function AttendanceTable() {
     const [attendance, setAttendance] = useState({});
     const [imageUrls, setImageUrls] = useState({});
-    const [selectedDate, setSelectedDate] = useState(new Date().toISOString().split("T")[0]);
+    const [selectedDate, setSelectedDate] = useState(new Date().toLocaleDateString("sv-SE"));
     const [availableDates, setAvailableDates] = useState([]);
     const [pdfPreviewUrl, setPdfPreviewUrl] = useState(null);
     const [selectedImage, setSelectedImage] = useState(null);
     const storage = getStorage();
-
-    const dateInputRef = useRef(null); // Menyimpan referensi ke input kalender
 
     useEffect(() => {
         const attendanceRef = ref(database, "attendance");
@@ -164,27 +163,37 @@ export default function AttendanceTable() {
 
             {/* Filter Date & Print Button */}
             <div className="flex justify-between items-center mb-4 gap-4">
-                <div className="flex flex-col md:flex-row md:gap-2 gap-1 items-center">
-                    <label className="flex font-semibold text-gray-700">Filter by Date: </label>
+                <div className="flex flex-col md:flex-row md:gap-2 gap-1 ">
+                    <label className="flex font-semibold text-gray-700 items-center">Filter by Date: </label>
 
                     {/* Calendar Icon & Date Picker */}
                     <LocalizationProvider dateAdapter={AdapterDateFns}>
                         <DatePicker
-                            value={selectedDate}
+                        sx={ { 
+                            
+                         } }
+                        className="w-[70%] md:w-[40%] "
+                            value={new Date(selectedDate)}
                             onChange={(newDate) => {
                                 if (newDate) {
-                                    setSelectedDate(newDate.toISOString().split("T")[0]);
+                                    setSelectedDate(new Date(newDate).toLocaleDateString("sv-SE"));
                                 }
                             }}
-                            renderInput={(params) => <TextField {...params} inputRef={dateInputRef} />}
+                            renderInput={(params) => (
+                                <TextField
+                                    {...params}
+                                    inputProps={{ ...params.inputProps, readOnly: true }}
+                                />
+                            )}
                         />
                     </LocalizationProvider>
+
                 </div>
 
                 {/* Print Button */}
                 <button
                     onClick={generatePDF}
-                    className="flex items-center bg-blue-600 text-white px-3 py-3 md:py-2 rounded-md hover:bg-blue-700 transition"
+                    className="flex items-end bg-blue-600 text-white px-1 py-1 md:py-2 rounded-md hover:bg-blue-700 transitio text-sm md:text-base"
                 >
                     🖨 Print Preview
                 </button>
