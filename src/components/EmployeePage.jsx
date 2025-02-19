@@ -4,8 +4,18 @@ import { useEffect, useState } from "react";
 import { useRouter } from "next/navigation";
 import { database } from "../../firebase-config";
 import { ref, get, remove } from "firebase/database";
-import { Edit as EditIcon, Delete as DeleteIcon, Add as AddIcon } from "@mui/icons-material";
-import { Dialog, DialogTitle, DialogContent, DialogActions, Button } from "@mui/material";
+import {
+  Edit as EditIcon,
+  Delete as DeleteIcon,
+  Add as AddIcon,
+} from "@mui/icons-material";
+import {
+  Dialog,
+  DialogTitle,
+  DialogContent,
+  DialogActions,
+  Button,
+} from "@mui/material";
 
 export default function EmployeeList() {
   const [employees, setEmployees] = useState([]);
@@ -19,7 +29,10 @@ export default function EmployeeList() {
       const snapshot = await get(employeesRef);
       if (snapshot.exists()) {
         const data = snapshot.val();
-        const employeeList = Object.keys(data).map((key) => ({ id: key, ...data[key] }));
+        const employeeList = Object.keys(data).map((key) => ({
+          id: key,
+          ...data[key],
+        }));
         setEmployees(employeeList);
       }
     };
@@ -44,10 +57,10 @@ export default function EmployeeList() {
     <div className="p-6">
       <h1 className="text-2xl font-bold text-gray-700">Employee List</h1>
       <div className="grid md:justify-items-end mt-3 md:mt-0 justify-items-start mb-4">
-        <Button 
-          variant="contained" 
-          color="primary" 
-          startIcon={<AddIcon />} 
+        <Button
+          variant="contained"
+          color="primary"
+          startIcon={<AddIcon />}
           onClick={() => router.push("/employee/create")}
         >
           Create
@@ -55,9 +68,9 @@ export default function EmployeeList() {
       </div>
       <div className="grid grid-cols-1 md:grid-cols-3 gap-4">
         {employees.map((employee) => (
-          <EmployeeCard 
-            key={employee.id} 
-            employee={employee} 
+          <EmployeeCard
+            key={employee.id}
+            employee={employee}
             onEdit={() => router.push(`/employee/${employee.id}`)}
             onDelete={() => handleDeleteConfirm(employee.id)}
           />
@@ -70,8 +83,12 @@ export default function EmployeeList() {
           Apakah Anda yakin ingin menghapus karyawan ini?
         </DialogContent>
         <DialogActions>
-          <Button onClick={() => setOpen(false)} color="primary">Batal</Button>
-          <Button onClick={handleDelete} color="secondary">Hapus</Button>
+          <Button onClick={() => setOpen(false)} color="primary">
+            Batal
+          </Button>
+          <Button onClick={handleDelete} color="secondary">
+            Hapus
+          </Button>
         </DialogActions>
       </Dialog>
     </div>
@@ -84,11 +101,31 @@ export function EmployeeCard({ employee, onEdit, onDelete }) {
       <div className="flex-1 flex-col gap-2">
         <h2 className="text-xl font-bold text-gray-700">{employee.name}</h2>
         <p className="text-gray-600">Gender: {employee.gender}</p>
-        <p className="text-sm text-gray-500">Created At: {new Date(employee.createdAt).toLocaleDateString()}</p>
+        <p className="text-gray-600">Status: {employee.status}</p>
+        <div className="flex space-x-6 mt-1">
+        <p className="text-xs text-gray-500">
+          Created At: {new Date(employee.createdAt).toLocaleDateString()}
+        </p>
+        <p className="text-xs text-gray-500">
+          Updated At:{" "}
+          {employee.updatedAt
+            ? new Date(employee.updatedAt).toLocaleDateString()
+            : "-"}
+        </p>
+        </div>
       </div>
       <div className="flex gap-3 items-end">
-        <EditIcon className="text-blue-500 cursor-pointer" fontSize="small" onClick={onEdit} />
-        <DeleteIcon className="text-red-500 cursor-pointer" fontSize="small" onClick={onDelete} />
+        <EditIcon
+          className="text-blue-500 cursor-pointer"
+          fontSize="small"
+          onClick={onEdit}
+        />
+        <DeleteIcon
+          className="text-red-500 cursor-pointer"
+          fontSize="small"
+          onClick={onDelete}
+        />
+        
       </div>
     </div>
   );

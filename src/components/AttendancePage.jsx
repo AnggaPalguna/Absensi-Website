@@ -1,11 +1,16 @@
 "use client";
 
-import { useState, useEffect } from "react";
+import { useState, useEffect, useRef } from "react";
 import { ref, onValue } from "firebase/database";
 import { getStorage, ref as storageRef, getDownloadURL } from "firebase/storage";
 import { database } from "../../firebase-config";
 import jsPDF from "jspdf";
 import autoTable from "jspdf-autotable";
+import { DatePicker } from "@mui/x-date-pickers/DatePicker";
+import { IconButton } from "@mui/material";
+import CalendarTodayIcon from "@mui/icons-material/CalendarToday";
+import { AdapterDateFns } from "@mui/x-date-pickers/AdapterDateFns";
+import { LocalizationProvider } from "@mui/x-date-pickers/LocalizationProvider";
 
 export default function AttendanceTable() {
     const [attendance, setAttendance] = useState({});
@@ -15,6 +20,8 @@ export default function AttendanceTable() {
     const [pdfPreviewUrl, setPdfPreviewUrl] = useState(null);
     const [selectedImage, setSelectedImage] = useState(null);
     const storage = getStorage();
+
+    const dateInputRef = useRef(null); // Menyimpan referensi ke input kalender
 
     useEffect(() => {
         const attendanceRef = ref(database, "attendance");
@@ -138,10 +145,6 @@ export default function AttendanceTable() {
         const pdfUrl = URL.createObjectURL(pdfBlob);
         setPdfPreviewUrl(pdfUrl);
     };
-    
-    
-    
-    
 
     // Fungsi Download PDF
     const downloadPDF = () => {
@@ -163,21 +166,19 @@ export default function AttendanceTable() {
             <div className="flex justify-between items-center mb-4 gap-4">
                 <div className="flex flex-col md:flex-row md:gap-2 gap-1 items-center">
                     <label className="flex font-semibold text-gray-700">Filter by Date: </label>
-                    <select
-                        className="flex border  border-gray-400 text-gray-700 px-1 md:px-2 py-1 md:py-2 rounded-md md:ml-2 "
-                        value={selectedDate}
-                        onChange={(e) => setSelectedDate(e.target.value)}
-                    >
-                        {/* Tambahkan selectedDate ke opsi jika tidak tersedia */}
-                        {!availableDates.includes(selectedDate) && (
-                            <option value={selectedDate}>{selectedDate}</option>
-                        )}
-                        {availableDates.map((date) => (
-                            <option key={date} value={date} className="text-xs md:text-base">
-                                {date}
-                            </option>
-                        ))}
-                    </select>
+
+                    {/* Calendar Icon & Date Picker */}
+                    <LocalizationProvider dateAdapter={AdapterDateFns}>
+                        <DatePicker
+                            value={selectedDate}
+                            onChange={(newDate) => {
+                                if (newDate) {
+                                    setSelectedDate(newDate.toISOString().split("T")[0]);
+                                }
+                            }}
+                            renderInput={(params) => <TextField {...params} inputRef={dateInputRef} />}
+                        />
+                    </LocalizationProvider>
                 </div>
 
                 {/* Print Button */}

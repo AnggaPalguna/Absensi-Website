@@ -4,6 +4,7 @@ import { useState } from "react";
 import Link from "next/link";
 import { Home, Calendar, User } from "lucide-react";
 import LogoutButton from "@/components/Logout";
+import AccountCircleIcon from '@mui/icons-material/AccountCircle';
 
 const Header = () => {
     const [isDropdownOpen, setIsDropdownOpen] = useState(false);
@@ -21,37 +22,46 @@ const Header = () => {
             <button onClick={toggleDropdown} className="md:hidden">
                 {isDropdownOpen ? <X size={28} /> : <Menu size={28} />}
             </button>
-            <h1 className="ml-4 text-xl font-bold">My Website</h1>
+            <div className=" flex justify-between w-full">
+            <div className="flex">
+                {isDropdownOpen && (
+                    <div className="absolute top-16 left-0 w-auto bg-white shadow-md p-4 md:hidden z-50">
+                        <nav>
+                            <ul className="space-y-3">
+                                <li onClick={closeDropdown}>
+                                    <Link href="/dashboard" className="flex items-center p-2 rounded hover:bg-slate-200 text-slate-600">
+                                        <Home className="w-6 h-6" />
+                                        <span className="ml-2">Dashboard</span>
+                                    </Link>
+                                </li>
+                                <li onClick={closeDropdown}>
+                                    <Link href="/attendance" className="flex items-center p-2 rounded hover:bg-slate-200 text-slate-600">
+                                        <Calendar className="w-6 h-6" />
+                                        <span className="ml-2">Attendance</span>
+                                    </Link>
+                                </li>
+                                <li onClick={closeDropdown}>
+                                    <Link href="/employee" className="flex items-center p-2 rounded hover:bg-slate-200 text-slate-600">
+                                        <User className="w-6 h-6" />
+                                        <span className="ml-2">Employee</span>
+                                    </Link>
+                                </li>
+                                <li onClick={closeDropdown}>
+                                    <LogoutButton />
+                                </li>
+                            </ul>
+                        </nav>
+                    </div>
+                )}
+                <h1 className="ml-4 text-xl font-bold">My Website</h1>
+            </div>
+            <div className="h-4 text-md space-x-2 items-center">
+            <span>Admin</span>
+                <AccountCircleIcon fontSize="large"/> 
+            </div>
+        </div>
 
-            {isDropdownOpen && (
-                <div className="absolute top-16 left-0 w-auto bg-white shadow-md p-4 md:hidden z-50">
-                    <nav>
-                        <ul className="space-y-3">
-                            <li onClick={closeDropdown}>
-                                <Link href="/dashboard" className="flex items-center p-2 rounded hover:bg-slate-200 text-slate-600">
-                                    <Home className="w-6 h-6" />
-                                    <span className="ml-2">Dashboard</span>
-                                </Link>
-                            </li>
-                            <li onClick={closeDropdown}>
-                                <Link href="/attendance" className="flex items-center p-2 rounded hover:bg-slate-200 text-slate-600">
-                                    <Calendar className="w-6 h-6" />
-                                    <span className="ml-2">Attendance</span>
-                                </Link>
-                            </li>
-                            <li onClick={closeDropdown}>
-                                <Link href="/employee" className="flex items-center p-2 rounded hover:bg-slate-200 text-slate-600">
-                                    <User className="w-6 h-6" />
-                                    <span className="ml-2">Employee</span>
-                                </Link>
-                            </li>
-                            <li onClick={closeDropdown}>
-                                <LogoutButton />
-                            </li>
-                        </ul>
-                    </nav>
-                </div>
-            )}
+            
         </header>
     );
 };

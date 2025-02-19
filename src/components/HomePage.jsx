@@ -115,7 +115,7 @@ export default function HomePage() {
 
     <div className="border rounded-lg shadow p-4 col-span-1 md:col-span-2">
       <h2 className="text-xl font-bold">Monthly Report</h2>
-      <ResponsiveContainer width="100%" height={250}>
+      <ResponsiveContainer width="100%" height={280}>
         <PieChart>
           <Pie
             data={pieData}

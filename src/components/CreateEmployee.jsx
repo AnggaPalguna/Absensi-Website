@@ -30,11 +30,13 @@ export default function CreateEmployee() {
       return;
     }
     const createdAt = new Date().toISOString();
+    const status = "Active";
     
     await set(ref(database, `employees/${uid}`), {
       name,
       gender,
       createdAt,
+      status,
     });
     
     await remove(ref(database, `unregisteredUids`));
