@@ -4,7 +4,15 @@ import { useEffect, useState } from "react";
 import { useRouter } from "next/navigation";
 import { database } from "../../firebase-config";
 import { ref, get, update } from "firebase/database";
-import { TextField, Button, FormControl, InputLabel, Select, MenuItem, Box } from "@mui/material";
+import { Input } from "@/components/ui/input";
+import { Button } from "@/components/ui/button";
+import {
+  Select,
+  SelectTrigger,
+  SelectValue,
+  SelectContent,
+  SelectItem,
+} from "@/components/ui/select";
 
 export default function EditEmployee({ uid }) {
   const [employee, setEmployee] = useState({ name: "", gender: "", status: "" });
@@ -36,9 +44,7 @@ export default function EditEmployee({ uid }) {
     };
 
     const employeeRef = ref(database, `employees/${uid}`);
-
     await update(employeeRef, updatedEmployee);
-
     router.push("/employee");
   };
 
@@ -46,38 +52,39 @@ export default function EditEmployee({ uid }) {
     <div className="p-6">
       <h2 className="text-xl font-bold mb-8">Edit Employee</h2>
       <form onSubmit={handleSubmit} className="space-y-4">
-        <TextField
-          fullWidth
+        <Input
           name="name"
-          label="Nama"
+          placeholder="Nama"
           value={employee.name}
           onChange={handleChange}
         />
 
-        <FormControl fullWidth>
-          <InputLabel className="bg-white text-center">Gender</InputLabel>
-          <Select name="gender" value={employee.gender || ""} onChange={handleChange}>
-            <MenuItem value="Male">Laki-laki</MenuItem>
-            <MenuItem value="Female">Perempuan</MenuItem>
-          </Select>
-        </FormControl>
+        <Select name="gender" value={employee.gender || ""} onValueChange={(value) => setEmployee({ ...employee, gender: value })}>
+          <SelectTrigger>
+            <SelectValue placeholder="Gender" />
+          </SelectTrigger>
+          <SelectContent>
+            <SelectItem value="Male">Male</SelectItem>
+            <SelectItem value="Female">Female</SelectItem>
+          </SelectContent>
+        </Select>
 
-        <FormControl fullWidth>
-          <InputLabel className="bg-white text-center">Status</InputLabel>
-          <Select name="status" value={employee.status || ""} onChange={handleChange}>
-            <MenuItem value="Active">Active</MenuItem>
-            <MenuItem value="Inactive">Inactive</MenuItem>
-          </Select>
-        </FormControl>
+        <Select name="status" value={employee.status || ""} onValueChange={(value) => setEmployee({ ...employee, status: value })}>
+          <SelectTrigger>
+            <SelectValue placeholder="Status" />
+          </SelectTrigger>
+          <SelectContent>
+            <SelectItem value="Active">Active</SelectItem>
+            <SelectItem value="Inactive">Inactive</SelectItem>
+          </SelectContent>
+        </Select>
 
-        <Box display="flex" gap={2}>
-          <Button variant="contained" color="primary" type="submit">
-            Save
-          </Button>
-          <Button variant="contained" color="secondary" onClick={() => router.push("/employee")}>
+        <div className="flex gap-2">
+          <Button type="submit">Save</Button>
+          <Button variant="outline" onClick={() => router.push("/employee")}>
             Back
           </Button>
-        </Box>
+        </div>
       </form>
     </div>
   );

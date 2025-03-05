@@ -1,18 +1,19 @@
 import Link from "next/link";
-import { Home, Calendar, User, ChevronLeft, ChevronRight } from "lucide-react";
-import { useState } from "react";
-import { PowerSettingsNew } from "@mui/icons-material";
-import LogoutButton from "@/components/Logout";
+import { Home, Calendar, User, ChevronLeft, Menu } from "lucide-react";
 
 const Sidebar = ({ isCollapsed, toggleCollapse }) => {
     return (
-        <aside className={`hidden md:block inset-y-0 left-0 z-30 bg-gray-800/5 backdrop-blur-sm p-4 ${isCollapsed ? "w-20" : "w-64"} transition-all duration-300`}>
-
-            <button className="mb-4 hidden md:flex items-center justify-center mt-auto p-2 w-full rounded bg-slate-200 hover:bg-slate-300 text-slate-600" onClick={toggleCollapse}>
-                {isCollapsed ? <ChevronRight className="w-6 h-6" /> : <ChevronLeft className="w-6 h-6" />}
+        <aside className={`hidden md:block inset-y-0 left-0 z-30 bg-gray-800/5 backdrop-blur-sm p-4 ${isCollapsed ? "w-20" : "w-52"} transition-all duration-300`}>
+            
+            <button 
+                className="mb-4 hidden md:flex items-center justify-center mt-auto p-2 w-full rounded hover:bg-slate-300 text-slate-600"
+                onClick={toggleCollapse}
+            >
+                {isCollapsed ? <Menu className="w-6 h-6" /> : <ChevronLeft className="w-6 h-6 ml-auto" />}
             </button>
-            <nav className="mt-2 ">
-                <ul className="space-y-3">
+            
+            <nav className="mt-6">
+                <ul className="space-y-6">
                     <li>
                         <Link href="/dashboard" className="flex items-center p-2 rounded hover:bg-slate-200 text-slate-600">
                             <Home className="ml-1 w-6 h-6" />
@@ -31,17 +32,9 @@ const Sidebar = ({ isCollapsed, toggleCollapse }) => {
                             <span className={`ml-2 ${isCollapsed ? "hidden" : "block"}`}>Employee</span>
                         </Link>
                     </li>
-                    <li>
-                        <LogoutButton
-                            icon={PowerSettingsNew}
-                            iconClassName="w-6 h-6"
-                            className={`${isCollapsed ? "hidden" : "block"}`} />
-                    </li>
-
                 </ul>
             </nav>
-
-        </aside >
+        </aside>
     );
 };
 

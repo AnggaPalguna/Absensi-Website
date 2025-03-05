@@ -1,14 +1,15 @@
 // Header.jsx
 import { Menu, X } from "lucide-react";
-import { useState } from "react";
+import { useState, useRef, useEffect } from "react";
 import Link from "next/link";
-import { Home, Calendar, User } from "lucide-react";
+import { Home, Calendar, User,UserCircle } from "lucide-react";
 import LogoutButton from "@/components/Logout";
-import AccountCircleIcon from '@mui/icons-material/AccountCircle';
 
 const Header = () => {
     const [isDropdownOpen, setIsDropdownOpen] = useState(false);
     const [isAdminDropdownOpen, setIsAdminDropdownOpen] = useState(false);
+    const dropdownRef = useRef(null);
+    const adminDropdownRef = useRef(null);
 
     const toggleDropdown = () => {
         setIsDropdownOpen(!isDropdownOpen);
@@ -23,13 +24,29 @@ const Header = () => {
         setIsAdminDropdownOpen(false);
     };
 
+    useEffect(() => {
+        function handleClickOutside(event) {
+            if (
+                dropdownRef.current && !dropdownRef.current.contains(event.target) &&
+                adminDropdownRef.current && !adminDropdownRef.current.contains(event.target)
+            ) {
+                closeDropdown();
+            }
+        }
+
+        document.addEventListener("mousedown", handleClickOutside);
+        return () => {
+            document.removeEventListener("mousedown", handleClickOutside);
+        };
+    }, []);
+
     return (
-        <header className="bg-slate-700 text-white p-4 flex items-center relative">
+        <header className="bg-slate-700 text-white p-4 flex items-center">
             <button onClick={toggleDropdown} className="md:hidden">
                 {isDropdownOpen ? <X size={28} /> : <Menu size={28} />}
             </button>
             <div className="flex justify-between w-full">
-                <div className="flex">
+                <div className="flex" ref={dropdownRef}>
                     {isDropdownOpen && (
                         <div className="absolute top-16 left-0 w-auto bg-white shadow-md p-4 md:hidden z-50">
                             <nav>
@@ -56,15 +73,15 @@ const Header = () => {
                             </nav>
                         </div>
                     )}
-                    <h1 className="ml-4 text-xl font-bold">My Website</h1>
+                    <h1 className="ml-5 text-xl font-bold mt-1">My Website</h1>
                 </div>
-                <div className="h-4 text-md flex items-center space-x-4 relative">
-                    <button onClick={toggleAdminDropdown}>
+                <div className="text-md flex items-center space-x-4 relative" ref={adminDropdownRef}>
+                    <button onClick={toggleAdminDropdown} className="flex items-center space-x-2 mr-2">
                         <span>Admin</span>
-                        <AccountCircleIcon fontSize="large" />
+                        <UserCircle className="w-8 h-8" />
                     </button>
                     {isAdminDropdownOpen && (
-                        <div className="absolute top-10 right-0 bg-white shadow-md p-4 w-48 z-50">
+                        <div className="absolute top-16 right-2 bg-white shadow p-4 w-48 z-50">
                             <ul className="space-y-3">
                                 <li onClick={closeDropdown}>
                                     <LogoutButton />
