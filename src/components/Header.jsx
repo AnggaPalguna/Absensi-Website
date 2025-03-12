@@ -2,7 +2,7 @@
 import { Menu, X } from "lucide-react";
 import { useState, useRef, useEffect } from "react";
 import Link from "next/link";
-import { Home, Calendar, User,UserCircle } from "lucide-react";
+import { Home, Calendar, User,UserCircle, Timer } from "lucide-react";
 import LogoutButton from "@/components/Logout";
 
 const Header = () => {
@@ -54,19 +54,25 @@ const Header = () => {
                                     <li onClick={closeDropdown}>
                                         <Link href="/dashboard" className="flex items-center p-2 rounded hover:bg-slate-200 text-slate-600">
                                             <Home className="w-6 h-6" />
-                                            <span className="ml-2">Dashboard</span>
+                                            <span className="ml-2">Beranda</span>
                                         </Link>
                                     </li>
                                     <li onClick={closeDropdown}>
                                         <Link href="/attendance" className="flex items-center p-2 rounded hover:bg-slate-200 text-slate-600">
                                             <Calendar className="w-6 h-6" />
-                                            <span className="ml-2">Attendance</span>
+                                            <span className="ml-2">Absensi</span>
                                         </Link>
                                     </li>
                                     <li onClick={closeDropdown}>
                                         <Link href="/employee" className="flex items-center p-2 rounded hover:bg-slate-200 text-slate-600">
                                             <User className="w-6 h-6" />
-                                            <span className="ml-2">Employee</span>
+                                            <span className="ml-2">Karyawan</span>
+                                        </Link>
+                                    </li>
+                                    <li onClick={closeDropdown}>
+                                        <Link href="/Time" className="flex items-center p-2 rounded hover:bg-slate-200 text-slate-600">
+                                            <Timer className="w-6 h-6" />
+                                            <span className="ml-2">Waktu</span>
                                         </Link>
                                     </li>
                                 </ul>
@@ -81,7 +87,7 @@ const Header = () => {
                         <UserCircle className="w-8 h-8" />
                     </button>
                     {isAdminDropdownOpen && (
-                        <div className="absolute top-16 right-2 bg-white shadow p-4 w-48 z-50">
+                        <div className="absolute top-16 right-0 bg-white shadow p-4 w-48 z-50">
                             <ul className="space-y-3">
                                 <li onClick={closeDropdown}>
                                     <LogoutButton />

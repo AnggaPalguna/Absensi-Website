@@ -53,7 +53,7 @@ export default function EmployeeList() {
 
   return (
     <div className="p-6">
-      <h1 className="text-2xl font-bold text-gray-700">Employee List</h1>
+      <h1 className="text-2xl font-bold text-gray-700">Daftar Karyawan</h1>
       <div className="flex justify-end mt-3 mb-4">
         <Button className="bg-slate-600" onClick={() => router.push("/employee/create")}>
           <Plus className="mr-1" size={16} /> Create
@@ -92,20 +92,26 @@ export default function EmployeeList() {
 
 export function EmployeeCard({ employee, onEdit, onDelete }) {
   return (
-    <div className="p-4 border rounded-lg shadow-sm hover:shadow-md flex justify-between">
-      <div className="flex-1">
-        <h2 className="md:text-xl font-bold text-gray-700">{employee.name}</h2>
-        <p className="text-sm md:text-base text-gray-600">Gender: {employee.gender}</p>
-        <p className="text-sm md:text-base text-gray-600">Status: {employee.status}</p>
-        <div className="flex space-x-6 mt-1 text-[9px] md:text-xs text-gray-500">
-          <p>Created At: {new Date(employee.createdAt).toLocaleDateString()}</p>
-          <p>Updated At: {employee.updatedAt ? new Date(employee.updatedAt).toLocaleDateString() : "-"}</p>
-        </div>
-      </div>
-      <div className="flex gap-3 items-end">
-        <Pencil className="text-blue-500 cursor-pointer" size={16} onClick={onEdit} />
-        <Trash className="text-red-500 cursor-pointer" size={16} onClick={onDelete} />
-      </div>
+  <div className="p-4 border rounded-lg shadow-sm hover:shadow-md flex flex-col ">
+    <div className="flex justify-between mb-2">
+      <h2 className="md:text-xl font-bold text-gray-700">{employee.name}</h2>
+      <span className="bg-gray-100 text-gray-600 text-xs px-2 py-1 rounded-md">
+        {employee.position}
+      </span>
     </div>
+
+    <p className="text-sm md:text-base text-gray-600">Jenis Kelamin : {employee.gender}</p>
+    <p className="text-sm md:text-base text-gray-600">Status : {employee.status}</p>
+    
+    <div className="flex space-x-6 mt-1 text-[9px] md:text-xs text-gray-500">
+      <p>Created At: {new Date(employee.createdAt).toLocaleDateString()}</p>
+      <p>Updated At: {employee.updatedAt ? new Date(employee.updatedAt).toLocaleDateString() : "-"}</p>
+    </div>
+
+    <div className="flex justify-end gap-3 mt-2">
+      <Pencil className="text-blue-500 cursor-pointer" size={16} onClick={onEdit} />
+      <Trash className="text-red-500 cursor-pointer" size={16} onClick={onDelete} />
+    </div>
+  </div>
   );
 }

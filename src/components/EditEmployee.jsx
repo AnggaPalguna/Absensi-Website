@@ -15,7 +15,7 @@ import {
 } from "@/components/ui/select";
 
 export default function EditEmployee({ uid }) {
-  const [employee, setEmployee] = useState({ name: "", gender: "", status: "" });
+  const [employee, setEmployee] = useState({ name: "", gender: "", status: "", position: "" });
   const router = useRouter();
 
   useEffect(() => {
@@ -48,6 +48,10 @@ export default function EditEmployee({ uid }) {
     router.push("/employee");
   };
 
+  const handleBack = () => {
+    router.push("/employee");
+  };
+
   return (
     <div className="p-6">
       <h2 className="text-xl font-bold mb-8">Edit Employee</h2>
@@ -55,13 +59,13 @@ export default function EditEmployee({ uid }) {
         <Input
           name="name"
           placeholder="Nama"
-          value={employee.name}
+          value={employee.name || ""}
           onChange={handleChange}
         />
 
-        <Select name="gender" value={employee.gender || ""} onValueChange={(value) => setEmployee({ ...employee, gender: value })}>
+        <Select value={employee.gender || ""} onValueChange={(value) => setEmployee({ ...employee, gender: value })}>
           <SelectTrigger>
-            <SelectValue placeholder="Gender" />
+            <SelectValue placeholder="Gender">{employee.gender || "Select Gender"}</SelectValue>
           </SelectTrigger>
           <SelectContent>
             <SelectItem value="Male">Male</SelectItem>
@@ -69,9 +73,9 @@ export default function EditEmployee({ uid }) {
           </SelectContent>
         </Select>
 
-        <Select name="status" value={employee.status || ""} onValueChange={(value) => setEmployee({ ...employee, status: value })}>
+        <Select value={employee.status || ""} onValueChange={(value) => setEmployee({ ...employee, status: value })}>
           <SelectTrigger>
-            <SelectValue placeholder="Status" />
+            <SelectValue placeholder="Status">{employee.status || "Select Status"}</SelectValue>
           </SelectTrigger>
           <SelectContent>
             <SelectItem value="Active">Active</SelectItem>
@@ -79,9 +83,21 @@ export default function EditEmployee({ uid }) {
           </SelectContent>
         </Select>
 
+        <Select value={employee.position || ""} onValueChange={(value) => setEmployee({ ...employee, position: value })}>
+          <SelectTrigger>
+            <SelectValue placeholder="Position">{employee.position || "Select Position"}</SelectValue>
+          </SelectTrigger>
+          <SelectContent>
+            <SelectItem value="Admin">Admin</SelectItem>
+            <SelectItem value="Manager">Manager</SelectItem>
+            <SelectItem value="Staff">Staff</SelectItem>
+            <SelectItem value="Intern">Intern</SelectItem>
+          </SelectContent>
+        </Select>
+
         <div className="flex gap-2">
           <Button type="submit">Save</Button>
-          <Button variant="outline" onClick={() => router.push("/employee")}>
+          <Button variant="outline" type="button" onClick={handleBack}>
             Back
           </Button>
         </div>

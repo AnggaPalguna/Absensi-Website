@@ -18,6 +18,8 @@ export default function CreateEmployee() {
   const [name, setName] = useState("");
   const [gender, setGender] = useState("");
   const [uid, setUid] = useState("");
+  const [status, setStatus] = useState("Active");
+  const [position, setPosition] = useState("");
   const [unregisteredUids, setUnregisteredUids] = useState([]);
   const router = useRouter();
 
@@ -32,23 +34,29 @@ export default function CreateEmployee() {
     fetchUids();
   }, []);
 
+  useEffect(() => {
+    if (unregisteredUids.length > 0 && !uid) {
+      setUid(unregisteredUids[0]);
+    }
+  }, [unregisteredUids]);
+
   const handleCreate = async () => {
-    if (!name || !gender || !uid) {
+    if (!name || !gender || !uid || !position) {
       alert("Semua field harus diisi");
       return;
     }
     const createdAt = new Date().toISOString();
-    const status = "Active";
-    
+
     await set(ref(database, `employees/${uid}`), {
       name,
       gender,
-      createdAt,
       status,
+      position,
+      createdAt,
     });
-    
+
     await remove(ref(database, `unregisteredUids`));
-    
+
     router.push("/employee");
   };
 
@@ -87,8 +95,28 @@ export default function CreateEmployee() {
             <SelectItem value="Female">Female</SelectItem>
           </SelectContent>
         </Select>
+        <Select onValueChange={setStatus} value={status}>
+          <SelectTrigger>
+            <SelectValue placeholder="Status" />
+          </SelectTrigger>
+          <SelectContent>
+            <SelectItem value="Active">Active</SelectItem>
+            <SelectItem value="Inactive">Inactive</SelectItem>
+          </SelectContent>
+        </Select>
+        <Select onValueChange={setPosition} value={position}>
+          <SelectTrigger>
+            <SelectValue placeholder="Position" />
+          </SelectTrigger>
+          <SelectContent>
+            <SelectItem value="Admin">Admin</SelectItem>
+            <SelectItem value="Manager">Manager</SelectItem>
+            <SelectItem value="Staff">Staff</SelectItem>
+            <SelectItem value="Intern">Intern</SelectItem>
+          </SelectContent>
+        </Select>
       </div>
-      <Button onClick={handleCreate} disabled={!name || !gender || !uid} className="w-full">
+      <Button onClick={handleCreate} disabled={!name || !gender || !uid || !position} className="w-full">
         Create Employee
       </Button>
     </div>
