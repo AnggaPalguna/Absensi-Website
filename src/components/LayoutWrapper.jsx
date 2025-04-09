@@ -21,13 +21,13 @@ export default function LayoutWrapper({ children }) {
             {/* Wrapper utama: Sidebar + Konten */}
             <div className="flex flex-1 overflow-hidden">
                 {/* Sidebar tetap tidak bisa di-scroll */}
-                <Sidebar isCollapsed={isCollapsed} toggleCollapse={() => setIsCollapsed(!isCollapsed)} />
+                <Sidebar isCollapsed={isCollapsed} />
                 
                 {/* Konten yang bisa di-scroll */}
                 <div className="flex flex-col flex-1 overflow-y-auto">
                     {/* Header tetap di dalam kontainer utama */}
                     <div className="sticky top-0 w-full bg-white shadow-md z-40">
-                        <Header />
+                        <Header isCollapsed={isCollapsed} toggleCollapse={() => setIsCollapsed(!isCollapsed)} />
                     </div>
                     <main className="flex-1 p-6">{children}</main>
                     {/* Footer tetap di bawah saat konten sedikit & hanya muncul saat scroll mentok */}

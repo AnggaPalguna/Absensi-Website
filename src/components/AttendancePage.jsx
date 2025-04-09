@@ -10,7 +10,7 @@ import { Button } from "@/components/ui/button";
 import { Calendar } from "@/components/ui/calendar";
 import { Popover, PopoverContent, PopoverTrigger } from "@/components/ui/popover";
 import { format, isWithinInterval, isSunday, parse } from "date-fns";
-import { CalendarIcon, Calendar as CalendarRange } from "lucide-react";
+import { CalendarIcon, Calendar as CalendarRange, FileDown, Search, X } from "lucide-react";
 import { Loader2 } from 'lucide-react';
 
 export default function AttendanceTable() {
@@ -22,6 +22,8 @@ export default function AttendanceTable() {
     const [selectedImage, setSelectedImage] = useState(null);
     const [loadingImageId, setLoadingImageId] = useState(null);
     const [imageCache, setImageCache] = useState({}); // Cache for loaded images
+    const [searchQuery, setSearchQuery] = useState("");
+    const [isLoading, setIsLoading] = useState(true);
     const storage = getStorage();
 
     useEffect(() => {
@@ -30,6 +32,7 @@ export default function AttendanceTable() {
             const data = snapshot.val() || {};
             setAttendance(data);
             setAvailableDates(Object.keys(data));
+            setIsLoading(false);
         });
     }, []);
 
@@ -112,6 +115,16 @@ export default function AttendanceTable() {
             }
         });
         
+        // Apply search filter if query exists
+        if (searchQuery.trim() !== "") {
+            const query = searchQuery.toLowerCase();
+            allRecords = allRecords.filter(record => 
+                (record.name && record.name.toLowerCase().includes(query)) ||
+                (record.position && record.position.toLowerCase().includes(query)) ||
+                (record.status && record.status.toLowerCase().includes(query))
+            );
+        }
+        
         return allRecords;
     };
 
@@ -173,7 +186,7 @@ export default function AttendanceTable() {
         }
         
         // Add header
-        const logoUrl = "https://images.unsplash.com/photo-1549924231-f129b911e442?q=80&w=2070&auto=format&fit=crop&ixlib=rb-4.0.3&ixid=M3wxMjA3fDB8MHxwaG90by1wYWdlfHx8fGVufDB8fHx8fA%3D%3D";
+        const logoUrl = "/img/logo.png";
         doc.addImage(logoUrl, "PNG", 15, 15, 15, 15);
         
         doc.setFontSize(18);
@@ -222,7 +235,7 @@ export default function AttendanceTable() {
                         record.time || "-",
                         record.status || "-",
                         record.time_checkout || "-",
-                        record.status_checkout || "-", // Placeholder for image column
+                        record.status_checkout || "-",
                     ]);
                 });
             } else {
@@ -277,7 +290,7 @@ export default function AttendanceTable() {
     };
 
     // Function to check if an image is currently loading
-    const isLoading = (record, type) => {
+    const isImageLoading = (record, type) => {
         const imageId = `${record.date}-${record.uid}-${type}`;
         return loadingImageId === imageId;
     };
@@ -294,217 +307,309 @@ export default function AttendanceTable() {
         return imageCache[imageId];
     };
 
+    // Clear search function
+    const clearSearch = () => {
+        setSearchQuery("");
+    };
+
     return (
-        <div className="container mx-auto py-6 max-w-full">
-            <h1 className="text-2xl font-bold mb-4 text-gray-900">Catatan Absensi</h1>
+        <div className="mx-auto py-6 px-4">
+            {/* Page Header */}
+            <div className="mb-10">
+                <h1 className="text-2xl md:text-3xl font-bold text-gray-900 mb-2">Catatan Absensi</h1>
+                <p className="text-gray-600 text-sm md:text-base">Sistem pencatatan kehadiran karyawan</p>
+            </div>
 
-            {/* Filter Date & Print Button */}
-            <div className="flex flex-col md:flex-row justify-between mb-4 gap-4">
-                <div className="flex flex-row items-center md:gap-2 gap-1">
-                    <label className="flex font-semibold text-gray-700 items-center">Filter: </label>
+            {/* Control Panel */}
+            <div className="bg-white rounded-lg shadow-md mb-6 p-4 md:p-6">
+                <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-4">
+                    {/* Filter Date Controls */}
+                    <div className="space-y-3">
+                        <h2 className="font-semibold text-gray-800">Filter Data</h2>
+                        <div className="flex flex-col space-y-2">
+                            <div className="flex items-center">
+                                <label className="w-24 text-sm text-gray-600">Mode Filter:</label>
+                                <select
+                                    value={filterMode}
+                                    onChange={(e) => setFilterMode(e.target.value)}
+                                    className="flex-1 border border-gray-300 rounded-md text-sm p-2 bg-white focus:ring-2 focus:ring-blue-500 focus:border-blue-500"
+                                >
+                                    <option value="single">Tanggal Tunggal</option>
+                                    <option value="range">Rentang Tanggal</option>
+                                </select>
+                            </div>
 
-                    {/* Filter Mode Selection */}
-                    <select
-                        value={filterMode}
-                        onChange={(e) => setFilterMode(e.target.value)}
-                        className="border border-gray-300 rounded-md text-sm px-2 py-1 mr-2"
-                    >
-                        <option value="single">Single Date</option>
-                        <option value="range">Date Range</option>
-                    </select>
+                            {/* Date Picker Based on Mode */}
+                            <div className="flex items-center">
+                                <label className="w-24 text-sm text-gray-600">Tanggal:</label>
+                                {filterMode === "single" ? (
+                                    <Popover>
+                                        <PopoverTrigger asChild>
+                                            <Button variant="outline" className="w-full flex-1 justify-start text-left font-normal">
+                                                <CalendarIcon className="mr-2 h-4 w-4" />
+                                                {format(new Date(selectedDate), "dd MMMM yyyy")}
+                                            </Button>
+                                        </PopoverTrigger>
+                                        <PopoverContent align="start" className="w-auto p-0">
+                                            <Calendar
+                                                mode="single"
+                                                selected={new Date(selectedDate)}
+                                                onSelect={handleDateChange}
+                                                initialFocus
+                                            />
+                                        </PopoverContent>
+                                    </Popover>
+                                ) : (
+                                    <Popover>
+                                        <PopoverTrigger asChild>
+                                            <Button variant="outline" className="w-full flex-1 justify-start text-left font-normal">
+                                                <CalendarRange className="mr-2 h-4 w-4" />
+                                                {dateRange.from ? (
+                                                    dateRange.to ? (
+                                                        <>
+                                                            {format(dateRange.from, "dd MMM yyyy")} - {format(dateRange.to, "dd MMM yyyy")}
+                                                        </>
+                                                    ) : (
+                                                        format(dateRange.from, "dd MMMM yyyy")
+                                                    )
+                                                ) : (
+                                                    <span>Pilih rentang tanggal</span>
+                                                )}
+                                            </Button>
+                                        </PopoverTrigger>
+                                        <PopoverContent align="start" className="w-auto p-0">
+                                            <Calendar
+                                                mode="range"
+                                                selected={{
+                                                    from: dateRange.from,
+                                                    to: dateRange.to
+                                                }}
+                                                onSelect={handleDateRangeChange}
+                                                initialFocus
+                                            />
+                                        </PopoverContent>
+                                    </Popover>
+                                )}
+                            </div>
+                        </div>
+                    </div>
 
-                    {/* Single Date Picker */}
-                    {filterMode === "single" && (
-                        <Popover>
-                            <PopoverTrigger asChild>
-                                <Button variant="outline" className="w-[150px] justify-start text-left font-normal">
-                                    <CalendarIcon className="mr-2 h-4 w-4" />
-                                    {format(new Date(selectedDate), "yyyy-MM-dd")}
-                                </Button>
-                            </PopoverTrigger>
-                            <PopoverContent align="start" className="w-auto p-0">
-                                <Calendar
-                                    mode="single"
-                                    selected={new Date(selectedDate)}
-                                    onSelect={handleDateChange}
-                                    initialFocus
-                                />
-                            </PopoverContent>
-                        </Popover>
-                    )}
+                    {/* Search Box */}
+                    <div className="space-y-3">
+                        <h2 className="font-semibold text-gray-800">Pencarian</h2>
+                        <div className="relative">
+                            <input
+                                type="text"
+                                value={searchQuery}
+                                onChange={(e) => setSearchQuery(e.target.value)}
+                                placeholder="Cari nama, jabatan, status..."
+                                className="w-full border border-gray-300 rounded-md text-sm p-2 pl-10 focus:ring-2 focus:ring-blue-500 focus:border-blue-500"
+                            />
+                            <Search className="absolute left-3 top-2.5 h-4 w-4 text-gray-400" />
+                            {searchQuery && (
+                                <button 
+                                    onClick={clearSearch}
+                                    className="absolute right-3 top-2.5"
+                                >
+                                    <X className="h-4 w-4 text-gray-400 hover:text-gray-600" />
+                                </button>
+                            )}
+                        </div>
+                    </div>
 
-                    {/* Date Range Picker */}
-                    {filterMode === "range" && (
-                        <Popover>
-                            <PopoverTrigger asChild>
-                                <Button variant="outline" className="w-[200px] justify-start text-left font-normal text-sm">
-                                    <CalendarRange className="mr-2 h-4 w-4" />
-                                    {dateRange.from ? (
-                                        dateRange.to ? (
-                                            <div className="text-xs">
-                                                {format(dateRange.from, "yyyy-MM-dd")} - {format(dateRange.to, "yyyy-MM-dd")}
-                                            </div>
-                                        ) : (
-                                            format(dateRange.from, "yyyy-MM-dd")
-                                        )
-                                    ) : (
-                                        <span>Select range</span>
-                                    )}
-                                </Button>
-                            </PopoverTrigger>
-                            <PopoverContent align="start" className="w-auto p-0">
-                                <Calendar
-                                    mode="range"
-                                    selected={{
-                                        from: dateRange.from,
-                                        to: dateRange.to
-                                    }}
-                                    onSelect={handleDateRangeChange}
-                                    initialFocus
-                                />
-                            </PopoverContent>
-                        </Popover>
-                    )}
+                    {/* Action Buttons */}
+                    <div className="space-y-3">
+                        <h2 className="font-semibold text-gray-800">Aksi</h2>
+                        <div className="flex space-x-3">
+                            <Button
+                                onClick={printPDF}
+                                className="flex-1 bg-blue-600 hover:bg-blue-700 text-white"
+                                disabled={(filterMode === "range" && (!dateRange.from || !dateRange.to))}
+                            >
+                                <FileDown className="mr-2 h-4 w-4" /> Unduh PDF
+                            </Button>
+                        </div>
+                    </div>
                 </div>
-
-                {/* Print Button */}
-                <Button
-                    onClick={printPDF}
-                    className="bg-blue-600 hover:bg-blue-700 text-white"
-                    disabled={(filterMode === "range" && (!dateRange.from || !dateRange.to))}
-                >
-                    🖨 Print PDF
-                </Button>
             </div>
 
-            {/* Tabel Data */}
-            <div className="overflow-x-auto">
-                <table className="w-full border border-gray-400 shadow-md">
-                    <thead>
-                        <tr className="bg-gray-300 text-gray-800 text-xs md:text-base">
-                            <th className="border border-gray-400 py-2">No</th>
-                            <th className="border border-gray-400 px-2 md:px-4 py-2">Nama</th>
-                            <th className="border border-gray-400 px-2 md:px-4 py-2">Tanggal</th>
-                            <th className="border border-gray-400 px-2 md:px-4 py-2">Jabatan</th>
-                            <th className="border border-gray-400 px-2 md:px-4 py-2">Waktu Masuk</th>
-                            <th className="border border-gray-400 px-2 md:px-4 py-2">Status Masuk</th>
-                            <th className="border border-gray-400 px-2 md:px-4 py-2">Waktu Keluar</th>
-                            <th className="border border-gray-400 px-2 md:px-4 py-2">Status Keluar</th>
-                            <th className="border border-gray-400 px-2 md:px-4 py-2">Gambar</th>
-                        </tr>
-                    </thead>
-                    <tbody>
-                        {getFilteredAttendanceData().length > 0 ? (
-                            getFilteredAttendanceData().map((record, index) => (
-                                <tr key={`${record.date}-${record.uid}`} className="border-b border-gray-300 text-xs md:text-base hover:bg-gray-100 transition text-slate-800">
-                                    <td className="border border-gray-300 py-2 text-center">{index + 1}</td>
-                                    <td className="border border-gray-300 px-2 md:px-4 py-2">{record.name || '-'}</td>
-                                    <td className="border border-gray-300 px-2 md:px-4 py-2">{record.date}</td>
-                                    <td className="border border-gray-300 px-2 md:px-4 py-2">{record.position || '-'}</td>
-                                    <td className="border border-gray-300 px-2 md:px-4 py-2">{record.time || '-'}</td>
-                                    <td className="border border-gray-300 px-2 md:px-4 py-2">{record.status || '-'}</td>
-                                    <td className="border border-gray-300 px-2 md:px-4 py-2">{record.time_checkout || '-'}</td>
-                                    <td className="border border-gray-300 px-2 md:px-4 py-2">{record.status_checkout || '-'}</td>
-                                    <td className="border border-gray-300 px-2 md:px-4 py-2 flex flex-col sm:flex-row items-center gap-1 justify-center">
-                                        {/* Check-in Image Button */}
-                                        <div className="relative">
-                                            {record.imageUrl ? (
-                                                isImageCached(record, 'in') ? (
-                                                    // Show cached image thumbnail
-                                                    <div className="relative">
-                                                        <img 
-                                                            src={getCachedImage(record, 'in')} 
-                                                            alt="Gambar Masuk"
-                                                            className="h-[30px] w-[40px] md:h-[80px] md:w-[100px] object-cover cursor-pointer hover:scale-105 transition-transform"
-                                                            onClick={() => setSelectedImage(getCachedImage(record, 'in'))}
-                                                        />
-                                                        <span className="absolute top-0 left-0 bg-green-600 text-white text-xs px-1 py-0.5 rounded-br">In</span>
-                                                    </div>
-                                                ) : (
-                                                    // Show button to load image
-                                                    <button
-                                                        className="h-[30px] w-[40px] md:h-[80px] md:w-[100px] bg-gray-100 border border-gray-300 flex items-center justify-center cursor-pointer hover:bg-gray-200 transition-colors relative"
-                                                        onClick={() => loadImage(record, 'in')}
-                                                        disabled={isLoading(record, 'in')}
-                                                    >
-                                                        {isLoading(record, 'in') ? (
-                                                            <Loader2 className="w-5 h-5 animate-spin text-gray-500" />
-                                                        ) : (
-                                                            <>
-                                                                <span className="text-gray-600 text-xs md:text-sm">Lihat Foto</span>
-                                                                <span className="absolute top-0 left-0 bg-green-600 text-white text-xs px-1 py-0.5 rounded-br">In</span>
-                                                            </>
-                                                        )}
-                                                    </button>
-                                                )
-                                            ) : (
-                                                <span className="text-center">- In -</span>
-                                            )}
-                                        </div>
-
-                                        {/* Check-out Image Button */}
-                                        <div className="relative">
-                                            {record.image_checkout ? (
-                                                isImageCached(record, 'out') ? (
-                                                    // Show cached image thumbnail
-                                                    <div className="relative">
-                                                        <img 
-                                                            src={getCachedImage(record, 'out')} 
-                                                            alt="Gambar Keluar"
-                                                            className="h-[30px] w-[40px] md:h-[80px] md:w-[100px] object-cover cursor-pointer hover:scale-105 transition-transform"
-                                                            onClick={() => setSelectedImage(getCachedImage(record, 'out'))}
-                                                        />
-                                                        <span className="absolute top-0 left-0 bg-red-600 text-white text-xs px-1 py-0.5 rounded-br">Out</span>
-                                                    </div>
-                                                ) : (
-                                                    // Show button to load image
-                                                    <button
-                                                        className="h-[30px] w-[40px] md:h-[80px] md:w-[100px] bg-gray-100 border border-gray-300 flex items-center justify-center cursor-pointer hover:bg-gray-200 transition-colors relative"
-                                                        onClick={() => loadImage(record, 'out')}
-                                                        disabled={isLoading(record, 'out')}
-                                                    >
-                                                        {isLoading(record, 'out') ? (
-                                                            <Loader2 className="w-5 h-5 animate-spin text-gray-500" />
-                                                        ) : (
-                                                            <>
-                                                                <span className="text-gray-600 text-xs md:text-sm">Lihat Foto</span>
-                                                                <span className="absolute top-0 left-0 bg-red-600 text-white text-xs px-1 py-0.5 rounded-br">Out</span>
-                                                            </>
-                                                        )}
-                                                    </button>
-                                                )
-                                            ) : (
-                                                <span className="text-center">- Out -</span>
-                                            )}
-                                        </div>
-                                    </td>
+            {/* Table Container */}
+            {isLoading ? (
+                <div className="bg-white rounded-lg shadow-md p-8 flex items-center justify-center">
+                    <div className="flex flex-col items-center">
+                        <Loader2 className="w-12 h-12 animate-spin text-blue-600 mb-4" />
+                        <p className="text-gray-600">Memuat data absensi...</p>
+                    </div>
+                </div>
+            ) : (
+                <div className="bg-white rounded-lg shadow-md overflow-hidden">
+                    <div className="overflow-x-auto">
+                        <table className="w-full border-collapse">
+                            <thead>
+                                <tr className="bg-blue-500 text-white">
+                                    <th className="py-3 px-4 text-left font-semibold text-xs md:text-sm lg:text-base">No</th>
+                                    <th className="py-3 px-4 text-left font-semibold text-xs md:text-sm lg:text-base">Nama</th>
+                                    <th className="py-3 px-4 text-left font-semibold text-xs md:text-sm lg:text-base">Tanggal</th>
+                                    <th className="py-3 px-4 text-left font-semibold text-xs md:text-sm lg:text-base hidden md:table-cell">Jabatan</th>
+                                    <th className="py-3 px-4 text-left font-semibold text-xs md:text-sm lg:text-base">Masuk</th>
+                                    <th className="py-3 px-4 text-left font-semibold text-xs md:text-sm lg:text-base hidden md:table-cell">Status</th>
+                                    <th className="py-3 px-4 text-left font-semibold text-xs md:text-sm lg:text-base">Keluar</th>
+                                    <th className="py-3 px-4 text-left font-semibold text-xs md:text-sm lg:text-base hidden md:table-cell">Status</th>
+                                    <th className="py-3 px-4 text-center font-semibold text-xs md:text-sm lg:text-base">Gambar</th>
                                 </tr>
-                            ))
-                        ) : (
-                            <tr>
-                                <td colSpan="9" className="text-center py-4 text-gray-600">
-                                    {filterMode === "single" 
-                                        ? `Tidak ada data pada tanggal ${selectedDate}`
-                                        : `Tidak ada data pada rentang tanggal yang dipilih`
-                                    }
-                                </td>
-                            </tr>
-                        )}
-                    </tbody>
-                </table>
-            </div>
+                            </thead>
+                            <tbody className="divide-y divide-gray-200">
+                                {getFilteredAttendanceData().length > 0 ? (
+                                    getFilteredAttendanceData().map((record, index) => (
+                                        <tr key={`${record.date}-${record.uid}`} className="hover:bg-gray-50 transition-colors">
+                                            <td className="py-3 px-4 text-sm text-gray-700">{index + 1}</td>
+                                            <td className="py-3 px-4 text-sm text-gray-700 font-medium">{record.name || '-'}</td>
+                                            <td className="py-3 px-4 text-sm text-gray-700">{format(new Date(record.date), "dd/MM/yyyy")}</td>
+                                            <td className="py-3 px-4 text-sm text-gray-700 hidden md:table-cell">{record.position || '-'}</td>
+                                            <td className="py-3 px-4 text-sm text-gray-700">
+                                                <div className="flex flex-col">
+                                                    <span>{record.time || '-'}</span>
+                                                    <span className="text-xs text-gray-500 md:hidden">{record.status || '-'}</span>
+                                                </div>
+                                            </td>
+                                            <td className="py-3 px-4 text-sm hidden md:table-cell">
+                                                <span className={`px-2 py-1 rounded-full text-xs font-medium ${
+                                                    record.status === 'Tepat Waktu' ? 'bg-green-100 text-green-800' : 
+                                                    record.status === 'Terlambat' ? 'bg-yellow-100 text-yellow-800' : 
+                                                    'bg-gray-100 text-gray-800'
+                                                }`}>
+                                                    {record.status || '-'}
+                                                </span>
+                                            </td>
+                                            <td className="py-3 px-4 text-sm text-gray-700">
+                                                <div className="flex flex-col">
+                                                    <span>{record.time_checkout || '-'}</span>
+                                                    <span className="text-xs text-gray-500 md:hidden">{record.status_checkout || '-'}</span>
+                                                </div>
+                                            </td>
+                                            <td className="py-3 px-4 text-sm hidden md:table-cell">
+                                                <span className={`px-2 py-1 rounded-full text-xs font-medium ${
+                                                    record.status_checkout === 'Tepat Waktu' ? 'bg-green-100 text-green-800' : 
+                                                    record.status_checkout === 'Pulang Awal' ? 'bg-red-100 text-red-800' : 
+                                                    'bg-gray-100 text-gray-800'
+                                                }`}>
+                                                    {record.status_checkout || '-'}
+                                                </span>
+                                            </td>
+                                            <td className="py-3 px-4">
+                                                <div className="flex gap-2 justify-center">
+                                                    {/* Check-in Image */}
+                                                    {record.imageUrl ? (
+                                                        isImageCached(record, 'in') ? (
+                                                            <div className="relative group">
+                                                                <img 
+                                                                    src={getCachedImage(record, 'in')} 
+                                                                    alt="Gambar Masuk"
+                                                                    className="h-10 w-10 md:h-12 md:w-12 object-cover rounded-md cursor-pointer group-hover:opacity-75 transition-opacity"
+                                                                    onClick={() => setSelectedImage(getCachedImage(record, 'in'))}
+                                                                />
+                                                                <div className="absolute -top-1 -right-1 bg-green-500 text-white text-xs rounded-full h-4 w-4 flex items-center justify-center">
+                                                                    I
+                                                                </div>
+                                                            </div>
+                                                        ) : (
+                                                            <button
+                                                                className="h-10 w-10 md:h-12 md:w-12 bg-blue-50 border border-blue-200 rounded-md flex items-center justify-center cursor-pointer hover:bg-blue-100 transition-colors relative"
+                                                                onClick={() => loadImage(record, 'in')}
+                                                                disabled={isImageLoading(record, 'in')}
+                                                            >
+                                                                {isImageLoading(record, 'in') ? (
+                                                                    <Loader2 className="w-6 h-6 animate-spin text-blue-500" />
+                                                                ) : (
+                                                                    <div className="flex flex-col items-center">
+                                                                        <span className="text-blue-600 text-xs">IN</span>
+                                                                    </div>
+                                                                )}
+                                                            </button>
+                                                        )
+                                                    ) : null}
+
+                                                    {/* Check-out Image */}
+                                                    {record.image_checkout ? (
+                                                        isImageCached(record, 'out') ? (
+                                                            <div className="relative group">
+                                                                <img 
+                                                                    src={getCachedImage(record, 'out')} 
+                                                                    alt="Gambar Keluar"
+                                                                    className="h-10 w-10 md:h-12 md:w-12 object-cover rounded-md cursor-pointer group-hover:opacity-75 transition-opacity"
+                                                                    onClick={() => setSelectedImage(getCachedImage(record, 'out'))}
+                                                                />
+                                                                <div className="absolute -top-1 -right-1 bg-red-500 text-white text-xs rounded-full h-4 w-4 flex items-center justify-center">
+                                                                    O
+                                                                </div>
+                                                            </div>
+                                                        ) : (
+                                                            <button
+                                                                className="h-10 w-10 md:h-12 md:w-12 bg-red-50 border border-red-200 rounded-md flex items-center justify-center cursor-pointer hover:bg-red-100 transition-colors relative"
+                                                                onClick={() => loadImage(record, 'out')}
+                                                                disabled={isImageLoading(record, 'out')}
+                                                            >
+                                                                {isImageLoading(record, 'out') ? (
+                                                                    <Loader2 className="w-6 h-6 animate-spin text-red-500" />
+                                                                ) : (
+                                                                    <div className="flex flex-col items-center">
+                                                                        <span className="text-red-600 text-xs">OUT</span>
+                                                                    </div>
+                                                                )}
+                                                            </button>
+                                                        )
+                                                    ) : null}
+                                                </div>
+                                            </td>
+                                        </tr>
+                                    ))
+                                ) : (
+                                    <tr>
+                                        <td colSpan="9" className="text-center py-8 text-gray-500">
+                                            <div className="flex flex-col items-center">
+                                                <svg className="w-12 h-12 text-gray-300 mb-3" fill="none" viewBox="0 0 24 24" stroke="currentColor">
+                                                    <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={1.5} d="M9.75 9.75l4.5 4.5m0-4.5l-4.5 4.5M21 12a9 9 0 11-18 0 9 9 0 0118 0z" />
+                                                </svg>
+                                                {searchQuery ? (
+                                                    <p>Tidak ada data yang cocok dengan pencarian "{searchQuery}"</p>
+                                                ) : (
+                                                    <p>
+                                                        {filterMode === "single" 
+                                                            ? `Tidak ada data pada tanggal ${format(new Date(selectedDate), "dd MMMM yyyy")}`
+                                                            : `Tidak ada data pada rentang tanggal yang dipilih`
+                                                        }
+                                                    </p>
+                                                )}
+                                            </div>
+                                        </td>
+                                    </tr>
+                                )}
+                            </tbody>
+                        </table>
+                    </div>
+                </div>
+            )}
             
             {/* Modal Pop-up for Image Preview */}
             {selectedImage && (
-                <div className="fixed inset-0 flex items-center justify-center bg-black bg-opacity-75 z-50">
-                    <div className="relative">
-                        <img src={selectedImage} alt="Preview" className="max-w-full max-h-[90vh] rounded-lg shadow-lg" />
-                        <button
-                            className="absolute top-2 right-2 bg-red-600 text-white p-2 rounded-[80px] w-10 hover:bg-red-800"
-                            onClick={() => setSelectedImage(null)}
-                        >
-                            ✕
-                        </button>
+                <div className="fixed inset-0 flex items-center justify-center bg-black bg-opacity-80 z-50 p-4">
+                    <div className="bg-white rounded-lg overflow-hidden relative max-w-3xl max-h-[90vh]">
+                        <div className="sticky top-0 z-10 flex justify-between items-center bg-gray-100 p-3">
+                            <h3 className="font-medium text-gray-800">Preview Foto Absensi</h3>
+                            <button
+                                className="rounded-full p-1 hover:bg-gray-200 transition-colors"
+                                onClick={() => setSelectedImage(null)}
+                            >
+                                <X className="h-5 w-5" />
+                            </button>
+                        </div>
+                        <div className="p-2">
+                            <img 
+                                src={selectedImage} 
+                                alt="Preview" 
+                                className="max-w-full max-h-[70vh] object-contain" 
+                            />
+                        </div>
                     </div>
                 </div>
             )}
