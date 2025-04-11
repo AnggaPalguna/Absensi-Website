@@ -509,7 +509,11 @@ export default function HomePage() {
                       fill="#8884d8"
                       dataKey="value"
                       labelLine={false}
-                      label={({ name, percent }) => window.innerWidth >= 768 ? `${name}: ${(percent * 100).toFixed(0)}%` : null}
+                      label={({ name, percent }) =>
+                        percent > 0.01 && window.innerWidth >= 768
+                          ? `${name}: ${(percent * 100).toFixed(0)}%`
+                          : null
+                      }
                     >
                       {pieDataAttendance.map((entry, index) => (
                         <Cell key={`cell-${index}`} fill={ATTENDANCE_COLORS[index % ATTENDANCE_COLORS.length]} />
@@ -563,7 +567,11 @@ export default function HomePage() {
                       fill="#8884d8"
                       dataKey="value"
                       labelLine={false}
-                      label={({ name, percent }) =>  window.innerWidth >= 768 ? `${name}: ${(percent * 100).toFixed(0)}%` : null}
+                      label={({ name, percent }) =>
+                        percent > 0.01 && window.innerWidth >= 768
+                          ? `${name}: ${(percent * 100).toFixed(0)}%`
+                          : null
+                      }
                     >
                       {pieDataStatus.map((entry, index) => (
                         <Cell key={`cell-${index}`} fill={COLORS[index % COLORS.length]} />
@@ -615,7 +623,11 @@ export default function HomePage() {
                       fill="#8884d8"
                       dataKey="value"
                       labelLine={false}
-                      label={({ name, percent }) =>  window.innerWidth >= 768 ? `${name}: ${(percent * 100).toFixed(0)}%` : null}
+                      label={({ name, percent }) =>
+                        percent > 0.01 && window.innerWidth >= 768
+                          ? `${name}: ${(percent * 100).toFixed(0)}%`
+                          : null
+                      }
                     >
                       {pieDataCheckout.map((entry, index) => (
                         <Cell key={`cell-${index}`} fill={COLORS[index % COLORS.length]} />
