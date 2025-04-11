@@ -509,6 +509,7 @@ export default function HomePage() {
                       fill="#8884d8"
                       dataKey="value"
                       labelLine={false}
+                      //filter data with 0 value
                       label={({ name, percent }) =>
                         percent > 0.01 && window.innerWidth >= 768
                           ? `${name}: ${(percent * 100).toFixed(0)}%`
