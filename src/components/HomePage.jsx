@@ -498,7 +498,7 @@ export default function HomePage() {
               <ResponsiveContainer width="100%" height={250}>
                 <PieChart>
                   {hasAttendanceData ? (
-                    
+                    // Show actual data chart when data exists
                     <Pie
                       className="text-xs"
                       data={pieDataAttendance}
