@@ -27,6 +27,8 @@ export default function EditEmployee({ uid }) {
     birthplace: "",
     birthdate: "",
     nik: "",
+    originalName: "", // To store original name for comparison
+    originalPosition: "", // To store original position for comparison
   });
   const [isLoading, setIsLoading] = useState(false);
   const router = useRouter();
@@ -49,6 +51,9 @@ export default function EditEmployee({ uid }) {
               data.name = data.fullname;
               data.nickname = data.fullname.slice(0, 16);
             }
+            // Store original values for comparison during update
+            data.originalName = data.name;
+            data.originalPosition = data.position;
             setEmployee(data);
           } else {
             alert("Data karyawan tidak ditemukan");
@@ -81,13 +86,47 @@ export default function EditEmployee({ uid }) {
     setIsLoading(true);
     
     try {
+      // Remove temporary original fields before saving
+      const { originalName, originalPosition, ...employeeData } = employee;
+      
       const updatedEmployee = {
-        ...employee,
+        ...employeeData,
         updatedAt: new Date().toISOString(),
       };
 
+      // Update employee data
       const employeeRef = ref(database, `employees/${uid}`);
       await update(employeeRef, updatedEmployee);
+      
+      // Check if name or position has changed
+      if (employee.name !== originalName || employee.position !== originalPosition) {
+        console.log("Name or position changed, updating attendance records");
+        
+        // Get all attendance records
+        const attendanceRef = ref(database, 'attendance');
+        const attendanceSnapshot = await get(attendanceRef);
+        
+        if (attendanceSnapshot.exists()) {
+          const attendanceData = attendanceSnapshot.val();
+          const updates = {};
+          
+          // Loop through all dates in attendance
+          Object.keys(attendanceData).forEach(date => {
+            // Check if this employee has an attendance record for this date
+            if (attendanceData[date][uid]) {
+              // Update name and position in attendance record
+              updates[`attendance/${date}/${uid}/name`] = employee.name;
+              updates[`attendance/${date}/${uid}/position`] = employee.position;
+            }
+          });
+          
+          // Apply all updates at once if there are any
+          if (Object.keys(updates).length > 0) {
+            await update(ref(database), updates);
+          }
+        }
+      }
+      
       router.push("/employee");
     } catch (error) {
       console.error("Error updating employee:", error);
