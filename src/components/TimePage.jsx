@@ -56,7 +56,7 @@ const TimePage = () => {
   const saveAutocek = async () => {
     try {
       await set(ref(database, "workingHours/autocek"), workingHours.autocek);
-      setModalMessage("Absensi otomatis berhasil disimpan!");
+      setModalMessage("Absensi otomatis berhasil disimpan! Tolong restart alat untuk menerapkan perubahan.");
       setModalType("success");
       setIsModalOpen(true);
     } catch (error) {
@@ -86,7 +86,7 @@ const TimePage = () => {
         }
 
         await set(ref(database, "workingHours/checkIn"), workingHours.checkIn);
-        setModalMessage("Waktu masuk berhasil disimpan!");
+        setModalMessage("Waktu masuk berhasil disimpan! Tolong restart alat untuk menerapkan perubahan.");
         setModalType("success");
         setIsModalOpen(true);
       }
@@ -100,7 +100,7 @@ const TimePage = () => {
   const saveCheckOut = async () => {
     try {
       await set(ref(database, "workingHours/checkOut"), workingHours.checkOut);
-      setModalMessage("Waktu keluar berhasil disimpan!");
+      setModalMessage("Waktu keluar berhasil disimpan! Tolong restart alat untuk menerapkan perubahan.");
       setModalType("success");
       setIsModalOpen(true);
     } catch (error) {
@@ -128,9 +128,9 @@ const TimePage = () => {
       {workingHours && (
         <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-6">
           {/* Autocek */}
-          <div className="bg-white p-6 rounded-lg shadow-md border-l-4 border-blue-500 hover:shadow-lg transition-shadow duration-300">
+          <div className="bg-white p-6 rounded-lg shadow-md border-l-4 border-green-500 hover:shadow-lg transition-shadow duration-300">
             <div className="flex items-center mb-4">
-              <Clock className="text-blue-500 mr-2" size={24} />
+              <Clock className="text-green-500 mr-2" size={24} />
               <h2 className="text-lg font-semibold text-gray-800">Absensi Otomatis</h2>
             </div>
             <p className="text-sm text-gray-600 mb-4">
@@ -142,13 +142,13 @@ const TimePage = () => {
                 type="time"
                 value={workingHours.autocek}
                 onChange={(e) => handleChange("autocek", "value", e.target.value)}
-                className="border border-gray-300 p-2 rounded-md w-full focus:ring-2 focus:ring-blue-500 focus:border-blue-500 transition-colors"
+                className="border border-gray-300 p-2 rounded-md w-full focus:ring-2 focus:ring-green-500 focus:border-green-500 transition-colors"
               />
             </div>
             <div className="flex gap-2 mt-4">
               <button 
                 onClick={saveAutocek} 
-                className="flex items-center px-4 py-2 bg-blue-500 text-white rounded-md hover:bg-blue-600 transition-colors focus:outline-none focus:ring-2 focus:ring-blue-500 focus:ring-offset-2"
+                className="flex items-center px-4 py-2 bg-green-500 text-white rounded-md hover:bg-green-600 transition-colors focus:outline-none focus:ring-2 focus:ring-green-500 focus:ring-offset-2"
               >
                 <Save size={16} className="mr-2" />
                 Simpan
@@ -212,9 +212,9 @@ const TimePage = () => {
           </div>
 
           {/* Check-Out */}
-          <div className="bg-white p-6 rounded-lg shadow-md border-l-4 border-orange-500 hover:shadow-lg transition-shadow duration-300">
+          <div className="bg-white p-6 rounded-lg shadow-md border-l-4 border-green-500 hover:shadow-lg transition-shadow duration-300">
             <div className="flex items-center mb-4">
-              <LogOut className="text-orange-500 mr-2" size={24} />
+              <LogOut className="text-green-500 mr-2" size={24} />
               <h2 className="text-lg font-semibold text-gray-800">Waktu Keluar</h2>
             </div>
             <p className="text-sm text-gray-600 mb-4">
@@ -226,7 +226,7 @@ const TimePage = () => {
                 type="time"
                 value={workingHours.checkOut.start}
                 onChange={(e) => handleChange("checkOut", "start", e.target.value)}
-                className="border border-gray-300 p-2 rounded-md w-full focus:ring-2 focus:ring-orange-500 focus:border-orange-500 transition-colors"
+                className="border border-gray-300 p-2 rounded-md w-full focus:ring-2 focus:ring-green-500 focus:border-green-500 transition-colors"
               />
             </div>
             <div className="mb-4">
@@ -235,13 +235,13 @@ const TimePage = () => {
                 type="time"
                 value={workingHours.checkOut.end}
                 onChange={(e) => handleChange("checkOut", "end", e.target.value)}
-                className="border border-gray-300 p-2 rounded-md w-full focus:ring-2 focus:ring-orange-500 focus:border-orange-500 transition-colors"
+                className="border border-gray-300 p-2 rounded-md w-full focus:ring-2 focus:ring-green-500 focus:border-green-500 transition-colors"
               />
             </div>
             <div className="flex gap-2 mt-4">
               <button 
                 onClick={saveCheckOut} 
-                className="flex items-center px-4 py-2 bg-orange-500 text-white rounded-md hover:bg-orange-600 transition-colors focus:outline-none focus:ring-2 focus:ring-orange-500 focus:ring-offset-2"
+                className="flex items-center px-4 py-2 bg-green-500 text-white rounded-md hover:bg-green-600 transition-colors focus:outline-none focus:ring-2 focus:ring-green-500 focus:ring-offset-2"
               >
                 <Save size={16} className="mr-2" />
                 Simpan
