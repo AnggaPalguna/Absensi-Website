@@ -9,31 +9,35 @@ import { LogIn, LogOut} from "lucide-react";
 export default function HomePage() {
   const [employees, setEmployees] = useState({});
   const [attendance, setAttendance] = useState({});
+  const [holidays, setHolidays] = useState({});
   const [loading, setLoading] = useState(true);
   const [searchQuery, setSearchQuery] = useState("");
   const getOuterRadius = () => (window.innerWidth < 768 ? 50 : 80);
 
-    // Filter employees based on search query
-    const filteredEmployees = () => {
-      if (!searchQuery.trim()) {
-        return Object.values(employees);
-      }
-      return Object.values(employees).filter(employee => 
-        employee.name.toLowerCase().includes(searchQuery.toLowerCase())
-      );
-    };
+  // Filter employees based on search query
+  const filteredEmployees = () => {
+    if (!searchQuery.trim()) {
+      return Object.values(employees);
+    }
+    return Object.values(employees).filter(employee => 
+      employee.name.toLowerCase().includes(searchQuery.toLowerCase())
+    );
+  };
   
   useEffect(() => {
     async function loadData() {
       try {
         const employeesRef = ref(database, "employees");
         const attendanceRef = ref(database, "attendance");
+        const holidaysRef = ref(database, "holidays");
         
         const employeesSnapshot = await get(employeesRef);
         const attendanceSnapshot = await get(attendanceRef);
+        const holidaysSnapshot = await get(holidaysRef);
         
         setEmployees(employeesSnapshot.exists() ? employeesSnapshot.val() : {});
         setAttendance(attendanceSnapshot.exists() ? attendanceSnapshot.val() : {});
+        setHolidays(holidaysSnapshot.exists() ? holidaysSnapshot.val() : {});
       } catch (error) {
         console.error("Error fetching data: ", error);
       } finally {
@@ -47,21 +51,34 @@ export default function HomePage() {
     return <Loading />;
   }
 
+  // Create a map of holiday dates for easy lookup
+  const holidayDates = Object.values(holidays).reduce((acc, holiday) => {
+    acc[holiday.date] = holiday.name;
+    return acc;
+  }, {});
+
   const totalEmployees = Object.keys(employees).length;
   const today = new Date().toISOString().split("T")[0];
-  const dailyReport = attendance[today] || {};
+  
+  // Check if today is a holiday
+  const isTodayHoliday = holidayDates[today];
+  
+  // Get attendance data for today, if it's not a holiday
+  const dailyReport = isTodayHoliday ? {} : (attendance[today] || {});
   
   // Get current month and year
   const date = new Date();
   const currentMonth = date.getMonth();
   const currentYear = date.getFullYear();
   
-  // Filter attendance data for current month only
+  // Filter attendance data for current month only, excluding holiday dates
   const monthlyReport = Object.entries(attendance)
     .filter(([dateKey]) => {
       const recordDate = new Date(dateKey);
+      // Only include dates from the current month and year that are not holidays
       return recordDate.getMonth() === currentMonth && 
-             recordDate.getFullYear() === currentYear;
+             recordDate.getFullYear() === currentYear &&
+             !holidayDates[dateKey]; // Filter out holiday dates
     })
     .flatMap(([_, dayData]) => Object.values(dayData));
 
@@ -112,9 +129,9 @@ export default function HomePage() {
     if (isCheckinAbsent || isCheckoutAbsent) {
         employeeStatusCount[entry.name].absence += 1;
     }
-});
+  });
 
-  // Calculate statistics for check-in status
+  // Calculate statistics for check-in status (excluding holidays)
   const statusCount = monthlyReport.reduce((acc, entry) => {
     if (entry.status && entry.status !== "Tidak Hadir") {
       acc[entry.status] = (acc[entry.status] || 0) + 1;
@@ -122,7 +139,7 @@ export default function HomePage() {
     return acc;
   }, {});
 
-  // Calculate statistics for check-out status
+  // Calculate statistics for check-out status (excluding holidays)
   const statusCheckoutCount = monthlyReport.reduce((acc, entry) => {
     if (entry.status_checkout && entry.status_checkout !== "Tidak Hadir") {
       acc[entry.status_checkout] = (acc[entry.status_checkout] || 0) + 1;
@@ -130,7 +147,7 @@ export default function HomePage() {
     return acc;
   }, {});
 
-  // Calculate attendance (present vs absent) - FIXED IMPLEMENTATION
+  // Calculate attendance (present vs absent) - FIXED IMPLEMENTATION (excluding holidays)
   // Now accounting for both check-in and check-out status
   const attendanceCount = {
     "Hadir": 0,
@@ -207,6 +224,12 @@ export default function HomePage() {
   };
 
   const emptyData = [{ name: "Tidak Ada Data", value: 1 }];
+
+  // Get current month's holidays
+  const currentMonthHolidays = Object.values(holidays).filter(holiday => {
+    const holidayDate = new Date(holiday.date);
+    return holidayDate.getMonth() === currentMonth && holidayDate.getFullYear() === currentYear;
+  });
 
   return (
     <div className="">
@@ -436,15 +459,26 @@ export default function HomePage() {
 
           {/* Daily Report */}
           <div className="bg-white rounded-xl shadow-md overflow-hidden">
-            <div className=" p-4">
+            <div className="p-4">
               <h2 className="text-xl font-bold">Laporan Harian ({today})</h2>
               <p className="">Kehadiran karyawan hari ini</p>
             </div>
             
             <div className="p-1 md:p-4">
-              {Object.keys(dailyReport).length > 0 ? (
+              {isTodayHoliday ? (
+                // Display holiday notice if today is a holiday
+                <div className="py-10 text-center">
+                  <svg className="mx-auto h-12 w-12 text-yellow-400" fill="none" viewBox="0 0 24 24" stroke="currentColor">
+                    <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={1} d="M5 3v4M3 5h4M6 17v4m-2-2h4m5-16l2.286 6.857L21 12l-5.714 2.143L13 21l-2.286-6.857L5 12l5.714-2.143L13 3z" />
+                  </svg>
+                  <p className="mt-2 text-lg font-medium text-gray-700">Hari Libur</p>
+                  <p className="text-sm text-gray-500">Tidak ada absensi hari ini karena libur.</p>
+                </div>
+              ) : Object.keys(dailyReport).length > 0 ? (
+                // Original table code for non-holiday with data
                 <div className="overflow-x-auto">
                   <table className="min-w-full divide-y divide-gray-200">
+                    {/* ... existing table code ... */}
                     <thead>
                       <tr>
                         <th className="px-6 md:px-14 py-3 bg-gray-50 text-left text-xs font-medium text-gray-500 uppercase tracking-wider">Nama</th>
@@ -472,6 +506,7 @@ export default function HomePage() {
                   </table>
                 </div>
               ) : (
+                // Original no-data code for non-holiday
                 <div className="py-10 text-center">
                   <svg className="mx-auto h-12 w-12 text-gray-400" fill="none" viewBox="0 0 24 24" stroke="currentColor">
                     <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={1} d="M8 7V3m8 4V3m-9 8h10M5 21h14a2 2 0 002-2V7a2 2 0 00-2-2H5a2 2 0 00-2 2v12a2 2 0 002 2z" />
