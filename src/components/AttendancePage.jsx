@@ -301,7 +301,7 @@ export default function AttendanceTable() {
         const filteredDates = getDatesInRange();
         
         // Set document title based on filter mode
-        let title = "Laporan Absensi LPD Desa Pekraman Tengkulak Kelod";
+        let title = "Laporan Absensi LPD Desa Adat Tengkulak Kelod";
         let subtitle;
         
         if (filterMode === "single") {
