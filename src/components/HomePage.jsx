@@ -106,7 +106,8 @@ export default function HomePage() {
                 "Lebih Awal": 0,
                 "Tepat Waktu": 0,
                 "Lembur": 0,
-                "Tidak Hadir": 0
+                "Tidak Hadir": 0,
+                "Tidak Absen": 0
             },
             absence: 0 // Tambahkan properti absence untuk menghitung ketidakhadiran
         };
@@ -181,7 +182,8 @@ export default function HomePage() {
   const defaultCheckoutCategories = {
     "Lebih Awal": 0,
     "Tepat Waktu": 0,
-    "Lembur": 0
+    "Lembur": 0,
+    "Tidak Absen": 0
   };
 
   const defaultAttendanceCategories = {
@@ -431,6 +433,9 @@ export default function HomePage() {
                               </div>
                               <div className="flex items-center gap-1">
                                 <span>Lembur: {status.checkout["Lembur"] || 0}</span>
+                              </div>
+                              <div className="flex items-center gap-1">
+                                <span>Tidak Absen: {status.checkout["Tidak Absen"] || 0}</span>
                               </div>
                             </div>
                           </div>

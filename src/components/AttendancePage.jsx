@@ -728,6 +728,7 @@ export default function AttendanceTable() {
                                                 </td>
                                                 <td className="py-3 px-4 text-sm hidden md:table-cell">
                                                     <span className={`px-2 py-1 rounded-full text-xs font-medium ${
+                                                        record.status === 'Lebih Awal' ? 'bg-purple-100 text-purple-800' : 
                                                         record.status === 'Tepat Waktu' ? 'bg-green-100 text-green-800' : 
                                                         record.status === 'Terlambat' ? 'bg-yellow-100 text-yellow-800' :
                                                         record.status === 'Tidak Hadir' ? 'bg-red-100 text-red-800' :
@@ -747,6 +748,7 @@ export default function AttendanceTable() {
                                                         record.status_checkout === 'Tepat Waktu' ? 'bg-green-100 text-green-800' : 
                                                         record.status_checkout === 'Pulang Awal' ? 'bg-red-100 text-red-400' : 
                                                         record.status_checkout === 'Tidak Hadir' ? 'bg-red-100 text-red-800' : 
+                                                        record.status_checkout === 'Tidak Absen' ? 'bg-red-100 text-red-800' : 
                                                         'bg-gray-100 text-gray-800'
                                                         
                                                     }`}>
@@ -754,11 +756,13 @@ export default function AttendanceTable() {
                                                     </span>
                                                 </td>
                                                 <td className="py-3 px-4 text-sm text-gray-700 hidden md:table-cell">
-                                                    {record.status === "Tidak Hadir" || record.status_checkout === "Tidak Hadir" ? (
-                                                        <div className="max-w-xs overflow-hidden text-ellipsis">
-                                                            {record.absence_details || "Belum ada keterangan"}
-                                                        </div>
-                                                    ) : "-"}
+                                                <div className="max-w-xs overflow-hidden text-ellipsis">
+                                                {(record.status === "Tidak Hadir" || record.status_checkout === "Tidak Hadir" || record.status_checkout === "Tidak Absen") ? (
+                                                    record.status_checkout === "Tidak Absen"
+                                                    ? (record.absence_details || "Lupa absen keluar")
+                                                    : (record.absence_details || "Belum ada keterangan")
+                                                ) : "-"}
+                                                </div>
                                                 </td>
                                                 <td className="py-3 px-4">
                                                     <div className="flex gap-2 justify-center">
@@ -827,24 +831,24 @@ export default function AttendanceTable() {
                                                         {/* Edit Absence Details Button - only for "Tidak Hadir" status */}
                                                         <button
                                                             className={`h-10 w-10 md:h-12 md:w-12 border rounded-md flex items-center justify-center transition-colors
-                                                                ${record.status === "Tidak Hadir" || record.status_checkout === "Tidak Hadir"
+                                                                ${record.status === "Tidak Hadir" || record.status_checkout === "Tidak Hadir" || record.status_checkout === "Tidak Absen"
                                                                 ? "bg-yellow-50 border-yellow-200 hover:bg-yellow-100 cursor-pointer"
                                                                 : "bg-gray-100 border-gray-200 cursor-not-allowed"
                                                                 }`}
                                                             onClick={() => {
-                                                                if (record.status === "Tidak Hadir" || record.status_checkout === "Tidak Hadir") {
+                                                                if (record.status === "Tidak Hadir" || record.status_checkout === "Tidak Hadir"|| record.status_checkout === "Tidak Absen") {
                                                                 openAbsenceDetailsDialog(record);
                                                                 }
                                                             }}
                                                             title={
-                                                                record.status === "Tidak Hadir" || record.status_checkout === "Tidak Hadir"
+                                                                record.status === "Tidak Hadir" || record.status_checkout === "Tidak Hadir" || record.status_checkout === "Tidak Absen"
                                                                 ? "Edit keterangan ketidakhadiran"
                                                                 : "Tidak dapat diedit"
                                                             }
                                                             >
                                                             <Edit
                                                                 className={`w-5 h-5 ${
-                                                                record.status === "Tidak Hadir" || record.status_checkout === "Tidak Hadir"
+                                                                record.status === "Tidak Hadir" || record.status_checkout === "Tidak Hadir" || record.status_checkout === "Tidak Absen"
                                                                     ? "text-yellow-600"
                                                                     : "text-gray-400"
                                                                 }`}
@@ -885,7 +889,7 @@ export default function AttendanceTable() {
             {/* Modal Pop-up for Image Preview */}
             {selectedImage && (
                 <div className="fixed inset-0 flex items-center justify-center bg-black bg-opacity-80 z-50 p-4">
-                    <div className="bg-white rounded-lg overflow-hidden relative max-w-3xl max-h-[90vh]">
+                    <div className="bg-white rounded-lg overflow-hidden relative max-w-sm max-h-[80vh]">
                         <div className="sticky top-0 z-10 flex justify-between items-center bg-gray-100 p-3">
                             <h3 className="font-medium text-gray-800">Preview Foto Absensi</h3>
                             <button
