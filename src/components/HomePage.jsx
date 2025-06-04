@@ -237,7 +237,7 @@ export default function HomePage() {
     <div className="">
       {/* Header with improved styling */}
       <div className="p-6">
-          <h1 className="text-3xl font-bold mb-2">Dashboard Kehadiran</h1>
+          <h1 className="text-3xl font-bold mb-2">Beranda Kehadiran</h1>
           <p className="">Ringkasan kehadiran karyawan dan laporan bulanan</p>
       </div>
 
